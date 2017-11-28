@@ -57,11 +57,11 @@ const makeGET = (dynamoDb) => (event, context, callback) => {
   dynamoDb.query(params, (error, data) => {
     if (error) {
       console.error(error)
-      callback(null, {statusCode: 500, body: JSON.stringify(error)})
+      callback(null, {statusCode: 500, body: JSON.stringify({error})})
     } else {
       const [body] = data.Items || []
       if (!body) {
-        callback(null, {statusCode: 404, body: JSON.stringify({message: 'Not Found'})})
+        callback(null, {statusCode: 404, body: JSON.stringify({error: 'Not Found'})})
       } else {
         Object.assign(body, geohash.decode(body.location))
         callback(null, {statusCode: 200, body: JSON.stringify(body)})

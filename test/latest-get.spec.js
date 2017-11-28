@@ -31,7 +31,33 @@ describe('handler for POSTing pings', () => {
     const [, response] = callback.firstCall.args
     expect(response.statusCode).equal(500)
 
+    const {error:body} = JSON.parse(response.body)
+    expect(body).deep.equal(error)
+  })
+
+  it('returns 404 on not found', () => {
+    const callback = sinon.spy()
+    const handler = makeGET(mockDynamoClient(undefined, {Items: []}))
+    handler(event, undefined, callback)
+    expect(callback.calledOnce)
+
+    const [, response] = callback.firstCall.args
+    expect(response.statusCode).equal(404)
+
+    const {error} = JSON.parse(response.body)
+    expect(error).equal('Not Found')
+  })
+
+  it('returns 200 on hit', () => {
+    const callback = sinon.spy()
+    const handler = makeGET(mockDynamoClient(undefined, {Items: [ping]}))
+    handler(event, undefined, callback)
+    expect(callback.calledOnce)
+
+    const [, response] = callback.firstCall.args
+    expect(response.statusCode).equal(200)
+
     const body = JSON.parse(response.body)
-    expect(error).deep.equal(body)
+    expect(body).deep.equal(Object.assign(body, geohash.decode(body.location)))
   })
 })
