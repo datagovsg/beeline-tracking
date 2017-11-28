@@ -1,0 +1,83 @@
+service: beeline-tracking
+
+frameworkVersion: ">=1.1.0 <2.0.0"
+
+plugins:
+  - serverless-dynamodb-autoscaling
+
+provider:
+  name: aws
+  region: ap-southeast-1
+  stage: staging
+  runtime: nodejs6.10
+  memorySize: 128
+  environment:
+    TRACKING_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+    AUTH0_SECRET: ${env:AUTH0_SECRET}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:PutItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.TRACKING_TABLE}"
+
+functions:
+  latest-post:
+    handler: src/latest.post
+    events:
+      - http:
+          path: trips/{tripId}/pings/latest
+          method: post
+          cors: true
+  latest-get:
+    handler: src/latest.get
+    events:
+      - http:
+          path: trips/{tripId}/pings/latest
+          method: get
+          cors: true
+
+custom:
+  capacities:
+    - table: TrackingDynamoDbTable
+      read:
+        minimum: 20
+        maximum: 100
+      write:
+        minimum: 20
+        maximum: 100
+
+resources:
+  Resources:
+    ApiGatewayMethodTripsTripidVarPingsLatestGet:
+      Properties:
+        RequestParameters:
+          method.request.path.tripId: true
+        Integration:
+          RequestParameters:
+            integration.request.path.tripId: method.request.path.tripId
+          CacheNamespace: ApiGatewayMethodTripsTripidVarPingsLatestGetCacheNS
+          CacheKeyParameters:
+            - method.request.path.tripId
+    TrackingDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: tripId
+            AttributeType: N
+          -
+            AttributeName: time
+            AttributeType: N
+        KeySchema:
+          -
+            AttributeName: tripId
+            KeyType: HASH
+          -
+            AttributeName: time
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 20
+          WriteCapacityUnits: 20
+        TableName: ${self:provider.environment.TRACKING_TABLE}
