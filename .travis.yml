@@ -1,0 +1,16 @@
+language: node_js
+node_js:
+  - '9'
+script:
+  - npx eslint .
+  - npm test
+after_success:
+  -  if [ "$TRAVIS_EVENT_TYPE" == "push" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
+     export AUTH0_SECRET=$AUTH0_SECRET_STAGING;
+     npx serverless deploy;
+     fi
+
+  -  if [ "$TRAVIS_EVENT_TYPE" == "push" ] && [ "$TRAVIS_BRANCH" == "production" ]; then
+     export AUTH0_SECRET=$AUTH0_SECRET_PROD;
+     npx serverless deploy -s prod;
+     fi
