@@ -12,5 +12,5 @@ after_success:
 
   -  if [ "$TRAVIS_EVENT_TYPE" == "push" ] && [ "$TRAVIS_BRANCH" == "production" ]; then
      export AUTH0_SECRET=$AUTH0_SECRET_PROD;
-     npx serverless deploy -s prod;
+     npx serverless deploy -v -s prod;
      fi

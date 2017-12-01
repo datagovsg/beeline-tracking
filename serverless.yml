@@ -61,7 +61,6 @@ resources:
             - method.request.path.tripId
     TrackingDynamoDbTable:
       Type: 'AWS::DynamoDB::Table'
-      DeletionPolicy: Retain
       Properties:
         AttributeDefinitions:
           -
