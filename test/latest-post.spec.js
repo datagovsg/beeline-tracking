@@ -66,7 +66,7 @@ describe('handler for POSTing pings', () => {
       tripId: event.pathParameters.tripId,
       driverId: ping.driverId,
       vehicleId: ping.vehicleId,
-      location: geohash.encode(ping.latitude, ping.longitude),
+      location: geohash.encode(ping.latitude, ping.longitude, 15),
     })
     expect(error).deep.equal(errorOnInsert)
   })

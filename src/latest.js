@@ -25,7 +25,7 @@ const makePOST = (dynamoDb) => (event, context, callback) => {
   if (validationError) {
     callbackWith(validationError.statusCode || 400, undefined, validationError)
   } else {
-    const location = geohash.encode(latitude, longitude)
+    const location = geohash.encode(latitude, longitude, 15)
 
     const params = {
       TableName: process.env.TRACKING_TABLE,

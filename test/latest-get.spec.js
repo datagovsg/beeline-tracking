@@ -14,7 +14,7 @@ describe('handler for POSTing pings', () => {
     tripId: 12,
     driverId: 34,
     vehicleId: 56,
-    location: geohash.encode(1.08, 103.56),
+    location: geohash.encode(1.08, 103.56, 15),
   }
 
   const event = {
