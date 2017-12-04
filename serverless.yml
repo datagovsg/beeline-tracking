@@ -44,7 +44,7 @@ custom:
         minimum: 20
         maximum: 100
       write:
-        minimum: 20
+        minimum: 5
         maximum: 100
 
 resources:
