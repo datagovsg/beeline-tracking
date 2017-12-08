@@ -17,6 +17,12 @@ describe('handler for GETing pings', () => {
     location: geohash.encode(1.08, 103.56, 15),
   }
 
+  const {latitude, longitude} = geohash.decode(ping.location)
+  const coordinates = {
+    type: 'Point',
+    coordinates: [longitude, latitude],
+  }
+
   const event = {
     pathParameters: {tripId: ping.tripId},
     queryStringParameters: {},
@@ -60,7 +66,7 @@ describe('handler for GETing pings', () => {
 
     const body = JSON.parse(response.body)
     expect(body).deep.equal([
-      Object.assign(ping, geohash.decode(ping.location)),
+      Object.assign(ping, {coordinates}),
     ])
   })
 })

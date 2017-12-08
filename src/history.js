@@ -25,7 +25,14 @@ const makeGET = (dynamoDb) => (event, context, callback) => {
       callbackWith(500, {error})
     } else {
       const body = (data.Items || []).map(
-        p => Object.assign(p, geohash.decode(p.location))
+        p => {
+          const {latitude, longitude} = geohash.decode(p.location)
+          const coordinates = {
+            type: 'Point',
+            coordinates: [longitude, latitude],
+          }
+          return Object.assign(p, {coordinates})
+        }
       )
       callbackWith(200, body)
     }

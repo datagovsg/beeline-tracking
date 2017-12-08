@@ -57,7 +57,12 @@ const makeGET = (dynamoDb) => (event, context, callback) => {
       if (!body) {
         callbackWith(404, {error: 'Not Found'})
       } else {
-        Object.assign(body, geohash.decode(body.location))
+        const {latitude, longitude} = geohash.decode(body.location)
+        const coordinates = {
+          type: 'Point',
+          coordinates: [longitude, latitude],
+        }
+        Object.assign(body, {coordinates})
         callbackWith(200, body)
       }
     }
