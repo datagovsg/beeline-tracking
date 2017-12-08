@@ -36,6 +36,17 @@ functions:
           path: trips/{tripId}/pings/latest
           method: get
           cors: true
+  get:
+    handler: src/history.get
+    events:
+      - http:
+          path: trips/{tripId}/pings
+          method: get
+          cors: true
+          request:
+            parameters:
+              querystrings:
+                limit: false
 
 custom:
   capacities:
@@ -59,6 +70,19 @@ resources:
           CacheNamespace: ApiGatewayMethodTripsTripidVarPingsLatestGetCacheNS
           CacheKeyParameters:
             - method.request.path.tripId
+    ApiGatewayMethodTripsTripidVarPingsGet:
+      Properties:
+        RequestParameters:
+          method.request.path.tripId: true
+          method.request.querystring.limit: false
+        Integration:
+          RequestParameters:
+            integration.request.path.tripId: method.request.path.tripId
+            integration.request.querystring.limit: method.request.querystring.limit
+          CacheNamespace: ApiGatewayMethodTripsTripidVarPingsGetCacheNS
+          CacheKeyParameters:
+            - method.request.path.tripId
+            - method.request.querystring.limit
     TrackingDynamoDbTable:
       Type: 'AWS::DynamoDB::Table'
       Properties:
