@@ -2,18 +2,10 @@ const AWS = require('aws-sdk')
 const geohash = require('ngeohash')
 
 const validate = require('./validate')
+const {callbackWithFactory} = require('./callback-helpers')
 
 const makePOST = (dynamoDb) => (event, context, callback) => {
-  const callbackWith = (statusCode, item, error) => {
-    const response = {}
-    if (item) {
-      response.item = item
-    }
-    if (error) {
-      response.error = error
-    }
-    callback(null, {statusCode, body: JSON.stringify(response)})
-  }
+  const callbackWith = callbackWithFactory(callback)
 
   const time = Date.now()
   const data = JSON.parse(event.body)
@@ -23,7 +15,7 @@ const makePOST = (dynamoDb) => (event, context, callback) => {
 
   const {driverId, validationError} = validate.validatePing(event, data)
   if (validationError) {
-    callbackWith(validationError.statusCode || 400, undefined, validationError)
+    callbackWith(validationError.statusCode || 400, {error: validationError})
   } else {
     const location = geohash.encode(latitude, longitude, 15)
 
@@ -35,9 +27,9 @@ const makePOST = (dynamoDb) => (event, context, callback) => {
     dynamoDb.put(params, (error) => {
       if (error) {
         console.error(error)
-        callbackWith(error.statusCode || 501, params.Item, error)
+        callbackWith(error.statusCode || 501, {item: params.Item, error})
       } else {
-        callbackWith(200, params.Item)
+        callbackWith(200, {item: params.Item})
       }
     })
   }
@@ -55,16 +47,18 @@ const makeGET = (dynamoDb) => (event, context, callback) => {
     Limit: 1,
   }
   dynamoDb.query(params, (error, data) => {
+    const callbackWith = callbackWithFactory(callback)
+
     if (error) {
       console.error(error)
-      callback(null, {statusCode: 500, body: JSON.stringify({error})})
+      callbackWith(500, {error})
     } else {
       const [body] = data.Items || []
       if (!body) {
-        callback(null, {statusCode: 404, body: JSON.stringify({error: 'Not Found'})})
+        callbackWith(404, {error: 'Not Found'})
       } else {
         Object.assign(body, geohash.decode(body.location))
-        callback(null, {statusCode: 200, body: JSON.stringify(body)})
+        callbackWith(200, body)
       }
     }
   })

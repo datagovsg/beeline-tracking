@@ -1,7 +1,11 @@
 const AWS = require('aws-sdk')
 const geohash = require('ngeohash')
 
+const {callbackWithFactory} = require('./callback-helpers')
+
 const makeGET = (dynamoDb) => (event, context, callback) => {
+  const callbackWith = callbackWithFactory(callback)
+
   const tripId = Number(event.pathParameters.tripId)
   const params = {
     ExpressionAttributeValues: {
@@ -18,12 +22,12 @@ const makeGET = (dynamoDb) => (event, context, callback) => {
   dynamoDb.query(params, (error, data) => {
     if (error) {
       console.error(error)
-      callback(null, {statusCode: 500, body: JSON.stringify({error})})
+      callbackWith(500, {error})
     } else {
       const body = (data.Items || []).map(
         p => Object.assign(p, geohash.decode(p.location))
       )
-      callback(null, {statusCode: 200, body: JSON.stringify(body)})
+      callbackWith(200, body)
     }
   })
 }
