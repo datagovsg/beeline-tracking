@@ -52,10 +52,10 @@ custom:
   capacities:
     - table: TrackingDynamoDbTable
       read:
-        minimum: 20
+        minimum: 2
         maximum: 100
       write:
-        minimum: 5
+        minimum: 2
         maximum: 100
 
 resources:
