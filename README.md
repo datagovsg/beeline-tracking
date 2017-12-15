@@ -101,18 +101,47 @@ Example output:
 ```json
 {
     "tripId": 121,
-    "location": "w21z7htm0",
-    "time": 1511846793362,
+    "location": "w21ztqe24",
+    "time": 1512125372160,
     "vehicleId": 1337,
     "driverId": 62353535,
-    "latitude": 1.3000130653381348,
-    "longitude": 103.85000467300415,
-    "error": {
-        "latitude": 0.000021457672119140625,
-        "longitude": 0.000021457672119140625
+    "coordinates": {
+        "type": "Point",
+        "coordinates": [
+            103.94622087478638,
+            1.3540863990783691
+        ]
     }
 }
 ```
+
+### GET the last 20 pings of the bus on a trip
+
+```bash
+curl https://XXXXXXX.execute-api.ap-southeast-1.amazonaws.com/staging/trips/121/pings?limit=20
+```
+
+Example output:
+```json
+[
+  {
+      "tripId": 121,
+      "location": "w21ztqe24",
+      "time": 1512125372160,
+      "vehicleId": 1337,
+      "driverId": 62353535,
+      "coordinates": {
+          "type": "Point",
+          "coordinates": [
+              103.94622087478638,
+              1.3540863990783691
+          ]
+      }
+  },
+  // ...
+]
+```
+
 
 ## Acknowledgements
 This project is created using code derived from [serverless/examples](https://github.com/serverless/examples/blob/master/aws-node-rest-api-with-dynamodb/)
