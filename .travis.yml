@@ -7,10 +7,12 @@ script:
 after_success:
   -  if [ "$TRAVIS_EVENT_TYPE" == "push" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
      export AUTH0_SECRET=$AUTH0_SECRET_STAGING;
+     export API_URL=$API_URL_STAGING;
      npx serverless deploy;
      fi
 
   -  if [ "$TRAVIS_EVENT_TYPE" == "push" ] && [ "$TRAVIS_BRANCH" == "production" ]; then
      export AUTH0_SECRET=$AUTH0_SECRET_PROD;
+     export API_URL=$API_URL_PROD;
      npx serverless deploy -v -s prod;
      fi

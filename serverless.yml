@@ -13,13 +13,15 @@ provider:
   memorySize: 128
   environment:
     TRACKING_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+    ROSTER_TABLE: ${self:service}-roster-${opt:stage, self:provider.stage}
     AUTH0_SECRET: ${env:AUTH0_SECRET}
+    API_URL: ${env:API_URL}
   iamRoleStatements:
     - Effect: Allow
       Action:
         - dynamodb:Query
         - dynamodb:PutItem
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.TRACKING_TABLE}"
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/*"
 
 functions:
   latest-post:
@@ -47,10 +49,24 @@ functions:
             parameters:
               querystrings:
                 limit: false
+  roster:
+    handler: src/roster.put
+    events:
+      - http:
+          path: trips/{tripId}/roster
+          method: put
+          cors: true
 
 custom:
   capacities:
     - table: TrackingDynamoDbTable
+      read:
+        minimum: 2
+        maximum: 100
+      write:
+        minimum: 2
+        maximum: 100
+    - table: RosterDynamoDbTable
       read:
         minimum: 2
         maximum: 100
@@ -104,3 +120,24 @@ resources:
           ReadCapacityUnits: 20
           WriteCapacityUnits: 20
         TableName: ${self:provider.environment.TRACKING_TABLE}
+    RosterDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: tripId
+            AttributeType: N
+          -
+            AttributeName: time
+            AttributeType: N
+        KeySchema:
+          -
+            AttributeName: tripId
+            KeyType: HASH
+          -
+            AttributeName: time
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 20
+          WriteCapacityUnits: 20
+        TableName: ${self:provider.environment.ROSTER_TABLE}

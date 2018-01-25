@@ -6,6 +6,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "aws-sdk": "^2.156.0",
+    "axios": "^0.17.1",
     "jsonwebtoken": "^8.1.0",
     "ngeohash": "^0.6.0"
   },
@@ -16,6 +17,7 @@
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-mocha": "^4.11.0",
     "mocha": "^4.0.1",
+    "moxios": "^0.4.0",
     "pre-commit": "^1.2.2",
     "prettier": "1.8.2",
     "serverless": "^1.24.1",
@@ -29,6 +31,7 @@
     "test": "npm run unit",
     "staging": "serverless deploy",
     "lint": "node scripts/lint.js",
+    "moxios": "^0.4.0",
     "prettier": "node scripts/prettier.js",
     "prettier-lint": "git fetch && npm run prettier && npm run lint"
   },
