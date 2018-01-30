@@ -40,6 +40,7 @@ functions:
           cors: true
   get:
     handler: src/history.get
+    timeout: 30
     events:
       - http:
           path: trips/{tripId}/pings
