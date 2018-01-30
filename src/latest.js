@@ -32,9 +32,10 @@ const makePOST = dynamoDb => (event, context, callback) => {
         }
       })
     })
-    .catch(({ validationError }) => {
-      callbackWith(validationError.statusCode || 400, {
-        error: validationError,
+    .catch(error => {
+      console.error(error)
+      callbackWith((error.validationError || {}).statusCode || 400, {
+        error: error.validationError || error,
       })
     })
 }
