@@ -14,7 +14,7 @@ const makePOST = dynamoDb => (event, context, callback) => {
   const tripId = Number(event.pathParameters.tripId)
 
   return validate
-    .validatePing(event, data)
+    .validatePing(event, data, dynamoDb)
     .then(({ driverId }) => {
       const location = geohash.encode(latitude, longitude, 15)
 
