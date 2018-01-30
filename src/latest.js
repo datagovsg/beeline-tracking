@@ -1,47 +1,51 @@
-const AWS = require('aws-sdk')
-const geohash = require('ngeohash')
+const AWS = require("aws-sdk")
+const geohash = require("ngeohash")
 
-const validate = require('./validate')
-const {callbackWithFactory} = require('./callback-helpers')
+const validate = require("./validate")
+const { callbackWithFactory } = require("./callback-helpers")
 
-const makePOST = (dynamoDb) => (event, context, callback) => {
+const makePOST = dynamoDb => (event, context, callback) => {
   const callbackWith = callbackWithFactory(callback)
 
   const time = Date.now()
   const data = JSON.parse(event.body)
 
-  const {vehicleId, latitude, longitude} = data
+  const { vehicleId, latitude, longitude } = data
   const tripId = Number(event.pathParameters.tripId)
 
-  const {driverId, validationError} = validate.validatePing(event, data)
-  if (validationError) {
-    callbackWith(validationError.statusCode || 400, {error: validationError})
-  } else {
-    const location = geohash.encode(latitude, longitude, 15)
+  return validate
+    .validatePing(event, data)
+    .then(({ driverId }) => {
+      const location = geohash.encode(latitude, longitude, 15)
 
-    const params = {
-      TableName: process.env.TRACKING_TABLE,
-      Item: {tripId, driverId, vehicleId, time, location},
-    }
-
-    dynamoDb.put(params, (error) => {
-      if (error) {
-        console.error(error)
-        callbackWith(error.statusCode || 501, {item: params.Item, error})
-      } else {
-        callbackWith(200, {item: params.Item})
+      const params = {
+        TableName: process.env.TRACKING_TABLE,
+        Item: { tripId, driverId, vehicleId, time, location },
       }
+
+      dynamoDb.put(params, error => {
+        if (error) {
+          console.error(error)
+          callbackWith(error.statusCode || 501, { item: params.Item, error })
+        } else {
+          callbackWith(200, { item: params.Item })
+        }
+      })
     })
-  }
+    .catch(({ validationError }) => {
+      callbackWith(validationError.statusCode || 400, {
+        error: validationError,
+      })
+    })
 }
 
-const makeGET = (dynamoDb) => (event, context, callback) => {
+const makeGET = dynamoDb => (event, context, callback) => {
   const tripId = Number(event.pathParameters.tripId)
   const params = {
     ExpressionAttributeValues: {
-      ':v1': tripId,
+      ":v1": tripId,
     },
-    KeyConditionExpression: 'tripId = :v1',
+    KeyConditionExpression: "tripId = :v1",
     TableName: process.env.TRACKING_TABLE,
     ScanIndexForward: false,
     Limit: 1,
@@ -51,25 +55,25 @@ const makeGET = (dynamoDb) => (event, context, callback) => {
 
     if (error) {
       console.error(error)
-      callbackWith(500, {error})
+      callbackWith(500, { error })
     } else {
       const [body] = data.Items || []
       if (!body) {
-        callbackWith(404, {error: 'Not Found'})
+        callbackWith(404, { error: "Not Found" })
       } else {
-        const {latitude, longitude} = geohash.decode(body.location)
+        const { latitude, longitude } = geohash.decode(body.location)
         const coordinates = {
-          type: 'Point',
+          type: "Point",
           coordinates: [longitude, latitude],
         }
-        Object.assign(body, {coordinates})
+        Object.assign(body, { coordinates })
         callbackWith(200, body)
       }
     }
   })
 }
 
-const makeExports = (dynamoDb) => ({
+const makeExports = dynamoDb => ({
   makeGET,
   makePOST,
   get: makeGET(dynamoDb),

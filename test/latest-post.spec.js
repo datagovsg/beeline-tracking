@@ -24,64 +24,73 @@ describe('handler for POSTing pings', () => {
 
   beforeEach(() => {
     const validatePing = sinon.stub(validate, 'validatePing')
-    validatePing.returns({driverId: ping.driverId})
+    validatePing.returns(Promise.resolve({driverId: ping.driverId}))
   })
 
   afterEach(() => {
     validate.validatePing.restore()
   })
 
-  it('should callback with 200 on successful insert', () => {
+  it('should callback with 200 on successful insert', (done) => {
     const callback = sinon.spy()
     const handler = makePOST(mockDynamoClient())
     handler(event, undefined, callback)
-    expect(callback.calledOnce)
+      .then(() => {
+        expect(callback.calledOnce)
 
-    const [, response] = callback.firstCall.args
-    expect(response.statusCode).equal(200)
+        const [, response] = callback.firstCall.args
+        expect(response.statusCode).equal(200)
 
-    const {item} = JSON.parse(response.body)
-    delete item.time
-    expect(item).deep.equal({
-      tripId: event.pathParameters.tripId,
-      driverId: ping.driverId,
-      vehicleId: ping.vehicleId,
-      location: geohash.encode(ping.latitude, ping.longitude, 15),
-    })
+        const {item} = JSON.parse(response.body)
+        delete item.time
+        expect(item).deep.equal({
+          tripId: event.pathParameters.tripId,
+          driverId: ping.driverId,
+          vehicleId: ping.vehicleId,
+          location: geohash.encode(ping.latitude, ping.longitude, 15),
+        })
+        done()
+      })
   }),
 
-  it('should callback with error on failure', () => {
+  it('should callback with error on failure', (done) => {
     const errorOnInsert = {statusCode: 500, message: 'fail'}
     const callback = sinon.spy()
     const handler = makePOST(mockDynamoClient(errorOnInsert))
     handler(event, undefined, callback)
-    expect(callback.calledOnce)
+      .then(() => {
+        expect(callback.calledOnce)
 
-    const [, response] = callback.firstCall.args
-    expect(response.statusCode).equal(errorOnInsert.statusCode)
+        const [, response] = callback.firstCall.args
+        expect(response.statusCode).equal(errorOnInsert.statusCode)
 
-    const {item, error} = JSON.parse(response.body)
-    delete item.time
-    expect(item).deep.equal({
-      tripId: event.pathParameters.tripId,
-      driverId: ping.driverId,
-      vehicleId: ping.vehicleId,
-      location: geohash.encode(ping.latitude, ping.longitude, 15),
-    })
-    expect(error).deep.equal(errorOnInsert)
+        const {item, error} = JSON.parse(response.body)
+        delete item.time
+        expect(item).deep.equal({
+          tripId: event.pathParameters.tripId,
+          driverId: ping.driverId,
+          vehicleId: ping.vehicleId,
+          location: geohash.encode(ping.latitude, ping.longitude, 15),
+        })
+        expect(error).deep.equal(errorOnInsert)
+        done()
+      })
   })
 
-  it('should callback with error on validation fail', () => {
+  it('should callback with error on validation fail', (done) => {
     const validationError = {validationError: 'Unauthorized'}
-    validate.validatePing.returns(validationError)
+    validate.validatePing.returns(Promise.reject(validationError))
     const callback = sinon.spy()
     const handler = makePOST(mockDynamoClient())
     handler(event, undefined, callback)
-    expect(callback.calledOnce)
+      .then(() => {
+        expect(callback.calledOnce)
 
-    const [, response] = callback.firstCall.args
-    expect(response.statusCode).equal(400)
-    const {error} = JSON.parse(response.body)
-    expect(error).equal(validationError.validationError)
+        const [, response] = callback.firstCall.args
+        expect(response.statusCode).equal(400)
+        const {error} = JSON.parse(response.body)
+        expect(error).equal(validationError.validationError)
+        done()
+      })
   })
 })

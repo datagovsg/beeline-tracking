@@ -16,31 +16,43 @@ describe('Ping validations', () => {
     delete process.env.AUTH0_SECRET
   })
 
-  it('should reject if no token', () => {
-    const {driverId, validationError} = validatePing({headers: {}})
-    expect(driverId).not.exist
-    expect(validationError).exist
+  it('should reject if no token', (done) => {
+    validatePing({headers: {}})
+      .then(expect.fail)
+      .catch(({validationError}) => {
+        expect(validationError).exist
+        done()
+      })
   })
 
-  it('should reject if bad token', () => {
+  it('should reject if bad token', (done) => {
     const authorization = sign(1, 'bad-token')
-    const {driverId, validationError} = validatePing({headers: {authorization}})
-    expect(driverId).not.exist
-    expect(validationError).exist
+    validatePing({headers: {authorization}})
+      .then(expect.fail)
+      .catch(({validationError}) => {
+        expect(validationError).exist
+        done()
+      })
   })
 
-  it('should reject if token has no driverId', () => {
+  it('should reject if token has no driverId', (done) => {
     const authorization = sign(undefined)
-    const {driverId, validationError} = validatePing({headers: {authorization}})
-    expect(driverId).not.exist
-    expect(validationError).exist
+    validatePing({headers: {authorization}})
+      .then(expect.fail)
+      .catch(({validationError}) => {
+        expect(validationError).exist
+        done()
+      })
   })
 
-  it('should accept if good token', () => {
+  it('should accept if good token', (done) => {
     const expected = 1337
     const authorization = sign(expected)
-    const {driverId, validationError} = validatePing({headers: {authorization}})
-    expect(driverId).equal(expected)
-    expect(validationError).not.exist
+    validatePing({headers: {authorization}})
+      .then(({driverId}) => {
+        expect(driverId).equal(expected)
+        done()
+      })
+      .catch(expect.fail)
   })
 })

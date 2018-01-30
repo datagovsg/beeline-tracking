@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken')
+const jwt = require("jsonwebtoken")
 
-const VALIDATION_ERROR = {validationError: 'Ping invalid: no driver id found'}
+const VALIDATION_ERROR = { validationError: "Ping invalid: no driver id found" }
 
 /**
  * Given an AWS Lambda event and a data object containing driver and trip
@@ -11,30 +11,35 @@ const VALIDATION_ERROR = {validationError: 'Ping invalid: no driver id found'}
  *   headers contains an authorization token from a driver
  * @param {object} data
  *   an object containing a vehicleId
- * @return {object}
- *   contains driverId if the event is considered valid (see above),
- *   or validationError otherwise
+ * @return {Promise}
+ *   resolves to driverId if the event is considered valid (see above),
+ *   or rejects with validationError otherwise
  */
-function validatePing (event, data) {
-  const authorization =
-    event.headers.authorization || event.headers.Authorization
-  const [, token] = (authorization || '').split(' ')
+function validatePing(event, data) {
+  return new Promise((resolve, reject) => {
+    const authorization =
+      event.headers.authorization || event.headers.Authorization
+    const [, token] = (authorization || "").split(" ")
 
-  if (!token) {
-    return VALIDATION_ERROR
-  }
+    if (!token) {
+      reject(VALIDATION_ERROR)
+    }
 
-  try {
-    const credentials = jwt.verify(token, process.env.AUTH0_SECRET)
-    const {driverId} = credentials
+    try {
+      const credentials = jwt.verify(token, process.env.AUTH0_SECRET)
+      const { driverId } = credentials
 
-    // TODO: look up the trip id on DynamoDB, ensure that
-    // this driver is meant to be driving this vehicle on this trip
-
-    return driverId ? credentials : VALIDATION_ERROR
-  } catch (validationError) {
-    return {validationError}
-  }
+      // TODO: look up the trip id on DynamoDB, ensure that
+      // this driver is meant to be driving this vehicle on this trip
+      if (driverId) {
+        resolve(credentials)
+      } else {
+        reject(VALIDATION_ERROR)
+      }
+    } catch (validationError) {
+      reject({ validationError })
+    }
+  })
 }
 
-module.exports = {validatePing}
+module.exports = { validatePing }
