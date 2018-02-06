@@ -16,6 +16,7 @@ provider:
     ROSTER_TABLE: ${self:service}-roster-${opt:stage, self:provider.stage}
     AUTH0_SECRET: ${env:AUTH0_SECRET}
     API_URL: ${env:API_URL}
+    TELEGRAM_TOKEN: ${env:TELEGRAM_TOKEN}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -56,6 +57,13 @@ functions:
       - http:
           path: trips/{tripId}/roster
           method: put
+          cors: true
+  telegram:
+    handler: src/telegram.hook
+    events:
+      - http:
+          path: telegram/hook
+          method: POST
           cors: true
 
 custom:
