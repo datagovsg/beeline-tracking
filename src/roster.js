@@ -23,7 +23,7 @@ const makePUT = dynamoDb => (event, context, callback) => {
         Item: { tripId, driverId, time },
       }
       if (data && data.vehicleId) {
-        params.Item.vehicleId = data.vehicleId
+        params.Item.vehicleId = Number(data.vehicleId)
       }
       dynamoDb.put(params, error => {
         if (error) {
