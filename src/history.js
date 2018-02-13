@@ -3,6 +3,24 @@ const geohash = require('ngeohash')
 
 const {callbackWithFactory} = require('./callback-helpers')
 
+const addQueryStringParameters = (params, {limit, from, to}) => {
+  const validNumber = x => x && Number(x) > 0
+  if (validNumber(limit)) {
+    params.Limit = Number(limit)
+  }
+  if (validNumber(from) && validNumber(to)) {
+    params.KeyConditionExpression = 'tripId = :v1 and time BETWEEN :from AND :to'
+    params.ExpressionAttributeValues[':from'] = Number(from)
+    params.ExpressionAttributeValues[':to'] = Number(to)
+  } else if (validNumber(from)) {
+    params.KeyConditionExpression = 'tripId = :v1 and time >= :from'
+    params.ExpressionAttributeValues[':from'] = Number(from)
+  } else if (validNumber(to)) {
+    params.KeyConditionExpression = 'tripId = :v1 and time <= :to'
+    params.ExpressionAttributeValues[':to'] = Number(to)
+  }
+}
+
 const makeGET = (dynamoDb) => (event, context, callback) => {
   const callbackWith = callbackWithFactory(callback)
 
@@ -15,10 +33,7 @@ const makeGET = (dynamoDb) => (event, context, callback) => {
     TableName: process.env.TRACKING_TABLE,
     ScanIndexForward: false,
   }
-  const {limit} = (event.queryStringParameters || {})
-  if (limit && Number(limit) > 0) {
-    params.Limit = Number(event.queryStringParameters.limit)
-  }
+  addQueryStringParameters(params, (event.queryStringParameters || {}))
   dynamoDb.query(params, (error, data) => {
     if (error) {
       console.error(error)
