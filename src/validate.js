@@ -33,7 +33,8 @@ const validateDriverWithRoster = (driverId, event, { vehicleId }, dynamoDb) =>
         } else {
           const valid =
             driverId === roster.driverId &&
-            (!roster.vehicleId || Number(vehicleId) === Number(roster.vehicleId))
+            (!roster.vehicleId ||
+              Number(vehicleId) === Number(roster.vehicleId))
           if (!valid) {
             console.error(
               `Roster is ${JSON.stringify(
