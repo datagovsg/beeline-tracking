@@ -14,6 +14,8 @@ provider:
   environment:
     TRACKING_TABLE: ${self:service}-${opt:stage, self:provider.stage}
     ROSTER_TABLE: ${self:service}-roster-${opt:stage, self:provider.stage}
+    PERFORMANCE_TABLE: ${self:service}-performance-${opt:stage, self:provider.stage}
+    MONITORING_TABLE: ${self:service}-monitoring-${opt:stage, self:provider.stage}
     AUTH0_SECRET: ${env:AUTH0_SECRET}
     API_URL: ${env:API_URL}
     TELEGRAM_TOKEN: ${env:TELEGRAM_TOKEN}
@@ -76,6 +78,20 @@ custom:
         minimum: 2
         maximum: 100
     - table: RosterDynamoDbTable
+      read:
+        minimum: 2
+        maximum: 100
+      write:
+        minimum: 2
+        maximum: 100
+    - table: PerformanceDynamoDbTable
+      read:
+        minimum: 2
+        maximum: 100
+      write:
+        minimum: 2
+        maximum: 100
+    - table: MonitoringDynamoDbTable
       read:
         minimum: 2
         maximum: 100
@@ -150,3 +166,45 @@ resources:
           ReadCapacityUnits: 20
           WriteCapacityUnits: 20
         TableName: ${self:provider.environment.ROSTER_TABLE}
+    PerformanceDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: routeId
+            AttributeType: N
+          -
+            AttributeName: date
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: routeId
+            KeyType: HASH
+          -
+            AttributeName: date
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 20
+          WriteCapacityUnits: 20
+        TableName: ${self:provider.environment.PERFORMANCE_TABLE}
+    MonitoringDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: transportCompanyId
+            AttributeType: N
+          -
+            AttributeName: time
+            AttributeType: N
+        KeySchema:
+          -
+            AttributeName: transportCompanyId
+            KeyType: HASH
+          -
+            AttributeName: time
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 20
+          WriteCapacityUnits: 20
+        TableName: ${self:provider.environment.MONITORING_TABLE}
