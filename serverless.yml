@@ -16,6 +16,7 @@ provider:
     ROSTER_TABLE: ${self:service}-roster-${opt:stage, self:provider.stage}
     PERFORMANCE_TABLE: ${self:service}-performance-${opt:stage, self:provider.stage}
     MONITORING_TABLE: ${self:service}-monitoring-${opt:stage, self:provider.stage}
+    EVENTS_TABLE: ${self:service}-events-${opt:stage, self:provider.stage}
     AUTH0_SECRET: ${env:AUTH0_SECRET}
     API_URL: ${env:API_URL}
     TELEGRAM_TOKEN: ${env:TELEGRAM_TOKEN}
@@ -92,6 +93,13 @@ custom:
         minimum: 2
         maximum: 100
     - table: MonitoringDynamoDbTable
+      read:
+        minimum: 2
+        maximum: 100
+      write:
+        minimum: 2
+        maximum: 100
+    - table: EventsDynamoDbTable
       read:
         minimum: 2
         maximum: 100
@@ -208,3 +216,24 @@ resources:
           ReadCapacityUnits: 20
           WriteCapacityUnits: 20
         TableName: ${self:provider.environment.MONITORING_TABLE}
+    EventsDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: dateRoute
+            AttributeType: S
+          -
+            AttributeName: alertId
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: dateRoute
+            KeyType: HASH
+          -
+            AttributeName: alertId
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 20
+          WriteCapacityUnits: 20
+        TableName: ${self:provider.environment.EVENTS_TABLE}
