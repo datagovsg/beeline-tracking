@@ -113,7 +113,7 @@ custom:
         maximum: 100
       write:
         minimum: 2
-        maximum: 100
+        maximum: 200
 
 resources:
   Resources:
