@@ -32,6 +32,7 @@ provider:
 functions:
   monitoring:
     handler: src/daemons/monitoring/index.handler
+    timeout: 45
     events:
       - schedule: ${env:MONITORING_RATE}
   latest-post:

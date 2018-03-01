@@ -29,7 +29,7 @@ module.exports.handler = (event, context, callback) => {
     .then(logCompletionOf("Entire operation", date))
     .then(s => {
       if (callback) {
-        callback(null, "Done")
+        callback(null, { message: "Done" })
       }
       return s
     })
