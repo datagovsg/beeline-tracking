@@ -98,21 +98,21 @@ custom:
         minimum: 2
         maximum: 100
       write:
-        minimum: 2
+        minimum: 10
         maximum: 100
     - table: MonitoringDynamoDbTable
       read:
         minimum: 2
         maximum: 100
       write:
-        minimum: 2
+        minimum: 10
         maximum: 100
     - table: EventsDynamoDbTable
       read:
         minimum: 2
         maximum: 100
       write:
-        minimum: 2
+        minimum: 10
         maximum: 200
 
 resources:
