@@ -33,7 +33,7 @@ functions:
   monitoring:
     handler: src/daemons/monitoring/index.handler
     events:
-      - schedule: rate(${env:MONITORING_RATE})
+      - schedule: ${env:MONITORING_RATE}
   latest-post:
     handler: src/latest.post
     events:
