@@ -2,7 +2,7 @@ const {expect} = require('chai')
 
 const jwt = require('jsonwebtoken')
 
-const {validatePing} = require('../src/validate')
+const {validatePing} = require('../src/utils/validate')
 
 const fail = (e) => expect.fail(undefined, undefined, JSON.stringify(e))
 

@@ -2,7 +2,7 @@ const sinon = require('sinon')
 const geohash = require('ngeohash')
 const {expect} = require('chai')
 
-const validate = require('../src/validate')
+const validate = require('../src/utils/validate')
 const {makePOST} = require('../src/latest')
 
 describe('handler for POSTing pings', () => {

@@ -1,7 +1,7 @@
 const AWS = require("aws-sdk")
 const axios = require("axios")
 const jwt = require("jsonwebtoken")
-const { callbackWithFactory } = require("./callback-helpers")
+const { callbackWithFactory } = require("./utils/callback-helpers")
 
 const makePUT = dynamoDb => (event, context, callback) => {
   const callbackWith = callbackWithFactory(callback)

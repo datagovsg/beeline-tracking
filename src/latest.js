@@ -1,8 +1,8 @@
 const AWS = require("aws-sdk")
 const geohash = require("ngeohash")
 
-const validate = require("./validate")
-const { callbackWithFactory } = require("./callback-helpers")
+const validate = require("./utils/validate")
+const { callbackWithFactory } = require("./utils/callback-helpers")
 
 const makePOST = dynamoDb => (event, context, callback) => {
   const callbackWith = callbackWithFactory(callback)

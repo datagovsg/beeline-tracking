@@ -1,7 +1,7 @@
 const AWS = require("aws-sdk")
 const geohash = require("ngeohash")
 
-const { callbackWithFactory } = require("./callback-helpers")
+const { callbackWithFactory } = require("./utils/callback-helpers")
 
 const addQueryStringParameters = (params, { limit, from, to }) => {
   const validNumber = x => x && Number(x) > 0
