@@ -19,6 +19,7 @@ provider:
     EVENTS_TABLE: ${self:service}-events-${opt:stage, self:provider.stage}
     AUTH0_SECRET: ${env:AUTH0_SECRET}
     API_URL: ${env:API_URL}
+    DATABASE_URL: ${env:DATABASE_URL}
     TELEGRAM_TOKEN: ${env:TELEGRAM_TOKEN}
   iamRoleStatements:
     - Effect: Allow
@@ -29,6 +30,10 @@ provider:
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/*"
 
 functions:
+  monitoring:
+    handler: src/daemons/monitoring/index.handler
+    events:
+      - schedule: rate(${env:MONITORING_RATE})
   latest-post:
     handler: src/latest.post
     events:

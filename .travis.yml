@@ -9,6 +9,8 @@ after_success:
      export AUTH0_SECRET=$AUTH0_SECRET_STAGING;
      export API_URL=$API_URL_STAGING;
      export TELEGRAM_TOKEN=$TELEGRAM_TOKEN_STAGING;
+     export DATABASE_URL=$DATABASE_URL_STAGING;
+     export MONITORING_RATE=$MONITORING_RATE_STAGING;
      npx serverless deploy --conceal;
      fi
 
@@ -16,5 +18,7 @@ after_success:
      export AUTH0_SECRET=$AUTH0_SECRET_PROD;
      export API_URL=$API_URL_PROD;
      export TELEGRAM_TOKEN=$TELEGRAM_TOKEN_PROD;
+     export DATABASE_URL=$DATABASE_URL_PROD;
+     export MONITORING_RATE=$MONITORING_RATE_PROD;
      npx serverless deploy --conceal -v -s prod;
      fi
