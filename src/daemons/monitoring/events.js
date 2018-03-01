@@ -1,6 +1,7 @@
 /* eslint require-jsdoc: 0 */
 const assert = require("assert")
 const df = require("dateformat")
+const { omit } = require("lodash")
 
 const numFiveMins = ms => Math.ceil(ms / 60000 / 5)
 
@@ -14,7 +15,7 @@ class NotificationEvent {
     assert(typeof message === "string")
 
     this.time = time
-    this.trip = trip
+    this.trip = omit(trip, "tripStops")
     this.severity = severity
     this.message = message
     this.type = type || "general"
