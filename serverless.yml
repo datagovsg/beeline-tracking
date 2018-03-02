@@ -36,6 +36,13 @@ functions:
     timeout: 45
     events:
       - schedule: ${env:MONITORING_RATE}
+  monitoring-status:
+    handler: src/monitoring.status
+    events:
+      - http:
+          path: monitoring
+          method: get
+          cors: true
   latest-post:
     handler: src/latest.post
     events:
