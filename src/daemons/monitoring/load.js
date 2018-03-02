@@ -9,7 +9,7 @@ const makeBatchWrite = (dynamoDb, tableName) => batch =>
     dynamoDb.batchWrite(params, (err, data) => {
       if (err) {
         // Just log the error, this is run regularly
-        console.warn("Unable to batch write: " + JSON.stringify(err), err.stack)
+        console.warn(`Unable to batch write to ${tableName}: ${JSON.stringify(err)}`, err.stack)
         resolve([])
       } else {
         const remaining = (data.UnprocessedItems[tableName] || []).map(
@@ -26,7 +26,7 @@ const makeItemWrite = (dynamoDb, tableName) => item =>
     dynamoDb.put(params, (err, data) => {
       if (err) {
         // Just log the error, this is run regularly
-        console.warn("Unable to write: " + err, err.stack)
+        console.warn(`Unable to write to ${tableName}: ${JSON.stringify(err)}`, err.stack)
       }
       resolve()
     })
