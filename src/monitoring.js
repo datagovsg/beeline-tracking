@@ -35,7 +35,7 @@ const makePerformance = dynamoDb => (event, context, callback) => {
   const lookupPerformanceByDate = dynamoDb
     .query({
       ExpressionAttributeValues: {
-        ":v1": routeId,
+        ":v1": Number(routeId),
         ":d1": fromDate,
         ":d2": toDate,
       },
