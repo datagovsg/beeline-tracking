@@ -26,7 +26,7 @@ const makePerformance = dynamoDb => (event, context, callback) => {
   const {
     headers,
     pathParameters: { routeId },
-    queryParameters: { from, to, format },
+    queryStringParameters: { from, to, format },
   } = event
 
   const fromDate = df(new Date(from || Date.now()), "isoDate")
