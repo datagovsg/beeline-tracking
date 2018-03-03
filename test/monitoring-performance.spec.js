@@ -12,7 +12,7 @@ describe("Retrieving monitoring performance", () => {
   const handler = makePerformance(mockDynamoDb)
   const event = {
     pathParameters: { routeId: 3 },
-    queryParameters: {},
+    queryStringParameters: {},
     headers: {},
   }
 
@@ -106,7 +106,7 @@ describe("Retrieving monitoring performance", () => {
       ],
     }
     mockQueryPromise.resolves({ Items: [ routeData ] })
-    event.queryParameters.format = "csv"
+    event.queryStringParameters.format = "csv"
     handler(event, undefined, callback)
       .then(() => {
         expect(callback.calledOnce)
