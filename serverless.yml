@@ -43,6 +43,13 @@ functions:
           path: monitoring
           method: get
           cors: true
+  monitoring-performance:
+    handler: src/monitoring.performance
+    events:
+      - http:
+          path: routes/{routeId}/performance
+          method: get
+          cors: true
   latest-post:
     handler: src/latest.post
     events:
