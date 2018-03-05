@@ -26,9 +26,10 @@ const makePerformance = dynamoDb => (event, context, callback) => {
   const {
     headers,
     pathParameters: { routeId },
-    queryStringParameters: { from, to, format },
+    queryStringParameters,
   } = event
 
+  const { from, to, format } = queryStringParameters || {}
   const fromDate = df(new Date(from || Date.now()), "isoDate")
   const toDate = df(new Date(to || Date.now()), "isoDate")
 
@@ -112,7 +113,6 @@ const makePerformance = dynamoDb => (event, context, callback) => {
     lookupPerformanceByDate,
   ])
     .then(([transportCompanyIds, performance]) => {
-      console.warn(`${format} requested, ignoring`)
       const data = performance.filter(p =>
         transportCompanyIds.includes(p.transportCompanyId)
       )
