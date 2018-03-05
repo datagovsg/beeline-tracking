@@ -23,11 +23,7 @@ const onError = callbackWith => error => {
 
 const makePerformance = dynamoDb => (event, context, callback) => {
   const callbackWith = callbackWithFactory(callback)
-  const {
-    headers,
-    pathParameters: { routeId },
-    queryStringParameters,
-  } = event
+  const { headers, pathParameters: { routeId }, queryStringParameters } = event
 
   const { from, to, format } = queryStringParameters || {}
   const fromDate = df(new Date(from || Date.now()), "isoDate")
