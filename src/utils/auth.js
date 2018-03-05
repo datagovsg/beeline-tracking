@@ -10,9 +10,10 @@ const axios = require("axios")
 function lookupEntitlements(headers) {
   const Authorization = headers.authorization || headers.Authorization
   return axios
-    .get(`${process.env.API_URL}/admins/whoami`, {
-      headers: { Authorization },
-    })
+    .get(
+      `${process.env.API_URL}/admins/whoami`,
+      Authorization ? { headers: { Authorization } } : {}
+    )
     .then(({ data: credentials }) => credentials)
 }
 
