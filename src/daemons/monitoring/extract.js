@@ -17,7 +17,7 @@ SELECT
 trips."routeId",
 ARRAY[ST_X(stops.coordinates), ST_Y(stops.coordinates)] as coordinates,
 stops.description,
-count(tickets.*) as pax,
+count(tickets.*)::integer as pax,
 ts."stopId",
 ts."tripId",
 ts."canBoard",
