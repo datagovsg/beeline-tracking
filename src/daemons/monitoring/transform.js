@@ -24,6 +24,8 @@ function createExportPayloads({ infoByRouteId, time }) {
       transportCompanyId: info.trip.route.transportCompanyId,
       stops: info.trip.tripStops.map(tripStop => ({
         stopId: tripStop.stopId,
+        canBoard: tripStop.canBoard,
+        canAlight: tripStop.canAlight,
         description: tripStop.stop.description,
         expectedTime: tripStop.time.toISOString(),
         actualTime: tripStop.bestPing && tripStop.bestPing.time.toISOString(),
