@@ -64,6 +64,12 @@ function createExportPayloads({ infoByRouteId, time }) {
     ) {
       monitoringInfo.status.bestPing.time = monitoringInfo.status.bestPing.time.toISOString()
     }
+    if (monitoringInfo.status.arrivalTime instanceof Date) {
+      monitoringInfo.status.arrivalTime = monitoringInfo.status.arrivalTime.toISOString()
+    }
+    if (monitoringInfo.status.eta instanceof Date) {
+      monitoringInfo.status.eta = monitoringInfo.status.eta.toISOString()
+    }
     companyInfo.monitoring[routeId] = monitoringInfo
   })
 
