@@ -99,6 +99,9 @@ describe("Retrieving monitoring performance", () => {
         {
           stopId: 4,
           description: "Sesame Street",
+          canBoard: true,
+          canAlight: false,
+          pax: 3,
           expectedTime: new Date().toISOString(),
           actualTime: new Date().toISOString(),
           actualLocation: "bnba",
@@ -112,12 +115,15 @@ describe("Retrieving monitoring performance", () => {
         expect(callback.calledOnce)
         const [, response] = callback.firstCall.args
         expect(response.body).equal(
-          "routeId,date,stopId,description,expectedTime,actualTime,actualLocation\n" +
+          "routeId,date,stopId,description,canBoard,canAlight,pax,expectedTime,actualTime,actualLocation\n" +
           [
             routeData.routeId,
             routeData.date,
             routeData.stops[0].stopId,
             routeData.stops[0].description,
+            routeData.stops[0].canBoard,
+            routeData.stops[0].canAlight,
+            routeData.stops[0].pax,
             routeData.stops[0].expectedTime,
             routeData.stops[0].actualTime,
             routeData.stops[0].actualLocation,
