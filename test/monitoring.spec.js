@@ -28,12 +28,11 @@ describe("Processing of pings for monitoring status", () => {
             canBoard: true,
             pax: 1,
             time: new Date(Date.now() + 5 * 60000),
-            stop: {
-              description: "Not needed",
-              coordinates: {
-                type: "Point",
-                coordinates: toWGS([13, 37]),
-              },
+            description: "Not needed",
+            road: "To nowhere",
+            coordinates: {
+              type: "Point",
+              coordinates: toWGS([13, 37]),
             },
           }],
           route: {
@@ -55,12 +54,11 @@ describe("Processing of pings for monitoring status", () => {
             canBoard: true,
             pax: 1,
             time: new Date(Date.now() + 5 * 60000),
-            stop: {
-              description: "Not needed",
-              coordinates: {
-                type: "Point",
-                coordinates: toWGS([13, 37]),
-              },
+            description: "Not needed",
+            road: "To nowhere",
+            coordinates: {
+              type: "Point",
+              coordinates: toWGS([13, 37]),
             },
           }],
           route: {
@@ -83,12 +81,11 @@ describe("Processing of pings for monitoring status", () => {
           tripStops: [{
             canBoard: true,
             time: new Date(Date.now() + 25 * 60000),
-            stop: {
-              description: "Not needed",
-              coordinates: {
-                type: "Point",
-                coordinates: toWGS([13, 37]),
-              },
+            description: "Not needed",
+            road: "To nowhere",
+            coordinates: {
+              type: "Point",
+              coordinates: toWGS([13, 37]),
             },
           }],
           route: {
@@ -112,12 +109,11 @@ describe("Processing of pings for monitoring status", () => {
           tripStops: [{
             canBoard: true,
             time: new Date(Date.now() + 25 * 60000),
-            stop: {
-              description: "Not needed",
-              coordinates: {
-                type: "Point",
-                coordinates: toWGS([13, 37]),
-              },
+            description: "Not needed",
+            road: "To nowhere",
+            coordinates: {
+              type: "Point",
+              coordinates: toWGS([13, 37]),
             },
           }],
           route: {
@@ -142,12 +138,11 @@ describe("Processing of pings for monitoring status", () => {
             canBoard: true,
             time: new Date(now + 25 * 60000),
             _xy: [13, 37],
-            stop: {
-              description: "Not needed",
-              coordinates: {
-                type: "Point",
-                coordinates: toWGS([13, 37]),
-              },
+            description: "Not needed",
+            road: "To nowhere",
+            coordinates: {
+              type: "Point",
+              coordinates: toWGS([13, 37]),
             },
           }],
           route: {
@@ -173,12 +168,11 @@ describe("Processing of pings for monitoring status", () => {
             canBoard: true,
             time: new Date(now + 5 * 60000),
             _xy: [13, 37],
-            stop: {
-              description: "Not needed",
-              coordinates: {
-                type: "Point",
-                coordinates: toWGS([13, 37]),
-              },
+            description: "Not needed",
+            road: "To nowhere",
+            coordinates: {
+              type: "Point",
+              coordinates: toWGS([13, 37]),
             },
           }],
           route: {
@@ -210,12 +204,11 @@ describe("Processing of pings for monitoring status", () => {
             canBoard: true,
             time: new Date(now + 5 * 60000),
             _xy: [13, 37],
-            stop: {
-              description: "Not needed",
-              coordinates: {
-                type: "Point",
-                coordinates: toWGS([13, 37]),
-              },
+            description: "Not needed",
+            road: "To nowhere",
+            coordinates: {
+              type: "Point",
+              coordinates: toWGS([13, 37]),
             },
           }],
           route: {
@@ -247,12 +240,11 @@ describe("Processing of pings for monitoring status", () => {
             canBoard: true,
             time: new Date(now),
             _xy: [13, 37],
-            stop: {
-              description: "Not needed",
-              coordinates: {
-                type: "Point",
-                coordinates: toWGS([13, 37]),
-              },
+            description: "Not needed",
+            road: "To nowhere",
+            coordinates: {
+              type: "Point",
+              coordinates: toWGS([13, 37]),
             },
           }],
           route: {
@@ -284,12 +276,11 @@ describe("Processing of pings for monitoring status", () => {
             canBoard: true,
             time: new Date(now),
             _xy: [13, 37],
-            stop: {
-              description: "Not needed",
-              coordinates: {
-                type: "Point",
-                coordinates: toWGS([13, 37]),
-              },
+            description: "Not needed",
+            road: "To nowhere",
+            coordinates: {
+              type: "Point",
+              coordinates: toWGS([13, 37]),
             },
           }],
           route: {
@@ -322,12 +313,11 @@ describe("Processing of pings for monitoring status", () => {
             canBoard: true,
             time: new Date(now),
             _xy: [13, 37],
-            stop: {
-              description: "Not needed",
-              coordinates: {
-                type: "Point",
-                coordinates: toWGS([13, 37]),
-              },
+            description: "Not needed",
+            road: "To nowhere",
+            coordinates: {
+              type: "Point",
+              coordinates: toWGS([13, 37]),
             },
           }],
           route: {

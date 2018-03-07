@@ -17,6 +17,7 @@ SELECT
 trips."routeId",
 ARRAY[ST_X(stops.coordinates), ST_Y(stops.coordinates)] as coordinates,
 stops.description,
+stops.road,
 count(tickets.*)::integer as pax,
 ts."stopId",
 ts."tripId",
@@ -131,11 +132,8 @@ function injectStopsWithRouteInfo([infoByRouteId, routesAndTripsById]) {
         "tripStops",
         tripStops.map(ts =>
           _(ts)
-            .omit(["coordinates", "description"])
-            .set("stop", {
-              description: ts.description,
-              coordinates: { type: "Point", coordinates: ts.coordinates },
-            })
+            .omit(["coordinates"])
+            .set("coordinates", { type: "Point", coordinates: ts.coordinates })
             .set("_xy", toSVY(ts.coordinates))
             .value()
         )
