@@ -33,6 +33,11 @@ class NoPingsEvent extends NotificationEvent {
       `Driver app not switched on ${delayInMins} mins before`,
       "noPings"
     )
+    const finalStopTime = Math.max.apply(
+      null,
+      trip.tripStops.map(ts => ts.time.getTime())
+    )
+    this.activeTrip = time < finalStopTime
     this.delayInMins = delayInMins
   }
 }
