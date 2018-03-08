@@ -38,7 +38,11 @@ module.exports.publish = (event, context, callback) => {
           event.trip.M.route.M.transportCompanyId.N
         )
         const relevantSubscribers = subsByCompany[transportCompanyId]
-        console.log(`Event: ${event}, Subscribers ${relevantSubscribers}`)
+        console.log(
+          `Event: ${JSON.stringify(event)}, Subscribers ${JSON.stringify(
+            relevantSubscribers
+          )}`
+        )
       })
     })
     .then(() => callback(null, { message: "Done" }))
