@@ -42,6 +42,7 @@ functions:
       - schedule: ${env:MONITORING_RATE}
   monitoring-publish:
     handler: src/streams/monitoring.publish
+    timeout: 120
     events:
       - stream:
           type: dynamodb
