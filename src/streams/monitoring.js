@@ -9,16 +9,17 @@ const isPublishNoPings = record => {
   return (
     record.eventName === "MODIFY" &&
     NewImage.type.S === "noPings" &&
-    NewImage.time.N - OldImage.time.N > 60 * 60 * 1000 &&
+    Number(NewImage.time.N) - Number(OldImage.time.N) > 60 * 60 * 1000 &&
     NewImage.activeTrip.B
   )
 }
 
 module.exports.publish = (event, context, callback) => {
-  console.log(`Before - ${JSON.stringify(event.Records)}`)
   const recordsToPublish = event.Records.filter(
     record => record.eventName === "INSERT" || isPublishNoPings(record)
   )
-  console.log(`After - ${JSON.stringify(recordsToPublish)}`)
+  if (recordsToPublish.length) {
+    console.log(JSON.stringify(recordsToPublish))
+  }
   callback(undefined, "Done.")
 }
