@@ -1,4 +1,3 @@
-/* eslint no-unused-vars: 0 */
 const _ = require("lodash")
 const pgp = require("pg-promise")()
 
@@ -14,11 +13,6 @@ const reloadEventSubscriptions = () => {
 }
 
 let lookupEventSubscriptions = reloadEventSubscriptions()
-
-setInterval(
-  () => (lookupEventSubscriptions = reloadEventSubscriptions()),
-  10 * 60 * 1000
-)
 
 const isPublishNoPings = record => {
   const { OldImage, NewImage } = record.dynamodb
@@ -37,5 +31,15 @@ module.exports.publish = (event, context, callback) => {
   if (eventsToPublish.length) {
     console.log(JSON.stringify(eventsToPublish))
   }
-  callback(null, { message: "Done" })
+  lookupEventSubscriptions
+    .then(subsByCompany => {
+      eventsToPublish.forEach(event => {
+        const transportCompanyId = Number(
+          event.trip.M.route.M.transportCompanyId.N
+        )
+        const relevantSubscribers = subsByCompany[transportCompanyId]
+        console.log(`Event: ${event}, Subscribers ${relevantSubscribers}`)
+      })
+    })
+    .then(() => callback(null, { message: "Done" }))
 }
