@@ -15,9 +15,10 @@ const isPublishNoPings = record => {
 }
 
 module.exports.publish = (event, context, callback) => {
+  console.log(`Before - ${JSON.stringify(event.Records)}`)
   const recordsToPublish = event.Records.filter(
     record => record.eventName === "INSERT" || isPublishNoPings(record)
   )
-  console.log(JSON.stringify(recordsToPublish))
+  console.log(`After - ${JSON.stringify(recordsToPublish)}`)
   callback(undefined, "Done.")
 }
