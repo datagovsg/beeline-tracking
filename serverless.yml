@@ -27,10 +27,6 @@ provider:
         - dynamodb:Query
         - dynamodb:BatchWriteItem
         - dynamodb:PutItem
-        - dynamodb:GetRecords
-        - dynamodb:GetShardIterator
-        - dynamodb:DescribeStream
-        - dynamodb:ListStreams
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/*"
 
 functions:
@@ -40,16 +36,6 @@ functions:
     timeout: 45
     events:
       - schedule: ${env:MONITORING_RATE}
-  monitoring-publish:
-    handler: src/streams/monitoring.publish
-    events:
-      - stream:
-          type: dynamodb
-          arn:
-            Fn::GetAtt:
-              - EventsDynamoDbTable
-              - StreamArn
-          batchSize: 1
   monitoring-status:
     handler: src/monitoring.status
     events:
@@ -273,5 +259,3 @@ resources:
           ReadCapacityUnits: 20
           WriteCapacityUnits: 20
         TableName: ${self:provider.environment.EVENTS_TABLE}
-        StreamSpecification:
-          StreamViewType: NEW_AND_OLD_IMAGES
