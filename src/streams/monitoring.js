@@ -15,10 +15,10 @@ const reloadEventSubscriptions = () => {
 
 let lookupEventSubscriptions = reloadEventSubscriptions()
 
-// setInterval(
-//   () => (lookupEventSubscriptions = reloadEventSubscriptions()),
-//   10 * 60 * 1000
-// )
+setInterval(
+  () => (lookupEventSubscriptions = reloadEventSubscriptions()),
+  10 * 60 * 1000
+)
 
 const isPublishNoPings = record => {
   const { OldImage, NewImage } = record.dynamodb
