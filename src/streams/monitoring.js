@@ -6,7 +6,7 @@ const db = pgp(process.env.DATABASE_URL)
 const reloadEventSubscriptions = () => {
   console.log("Reloading event subscriptions")
   return db
-    .query(
+    .any(
       `SELECT event, handler, params, agent, "transportCompanyId" FROM "eventSubscriptions"`
     )
     .then(subs => _.groupBy(subs, "transportCompanyId"))
@@ -42,6 +42,6 @@ module.exports.publish = (event, context, callback) => {
       const relevantSubscribers = subsByCompany[transportCompanyId]
       console.log(`Event: ${event}, Subscribers ${relevantSubscribers}`)
     })
+    callback(undefined, "Done.")
   })
-  callback(undefined, "Done.")
 }
