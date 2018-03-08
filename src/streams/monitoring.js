@@ -68,7 +68,9 @@ module.exports.publish = (event, context, callback) => {
         const routeId = Number(event.trip.M.routeId.N)
         const type = event.type.S
         const relevantSubscribers = subsByCompany[transportCompanyId].filter(
-          sub => sub.params.routeIds.includes(routeId) && sub.event === type
+          sub =>
+            sub.event === type &&
+            (!sub.params.routeIds || sub.params.routeIds.includes(routeId))
         )
         if (
           relevantSubscribers.length &&
