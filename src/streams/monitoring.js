@@ -28,21 +28,24 @@ module.exports.publish = (event, context, callback) => {
   const eventsToPublish = event.Records.filter(
     record => record.eventName === "INSERT" || isPublishNoPings(record)
   ).map(record => record.dynamodb.NewImage)
-  if (eventsToPublish.length) {
-    console.log(JSON.stringify(eventsToPublish))
-  }
   lookupEventSubscriptions
     .then(subsByCompany => {
       eventsToPublish.forEach(event => {
         const transportCompanyId = Number(
           event.trip.M.route.M.transportCompanyId.N
         )
-        const relevantSubscribers = subsByCompany[transportCompanyId]
-        console.log(
-          `Event: ${JSON.stringify(event)}, Subscribers ${JSON.stringify(
-            relevantSubscribers
-          )}`
+        const routeId = Number(event.trip.M.routeId.N)
+        const type = event.type.S
+        const relevantSubscribers = subsByCompany[transportCompanyId].filter(
+          sub => sub.params.routeIds.includes(routeId) && sub.event === type
         )
+        if (relevantSubscribers.length) {
+          console.log(
+            `Event: ${JSON.stringify(event)}, Subscribers ${JSON.stringify(
+              relevantSubscribers
+            )}`
+          )
+        }
       })
     })
     .then(() => callback(null, { message: "Done" }))
