@@ -7,7 +7,7 @@ const reloadEventSubscriptions = () => {
   console.log("Reloading event subscriptions")
   return db
     .query(
-      `SELECT event, handler, params, agent, "transportCompanyId" FROM eventSubscriptions`
+      `SELECT event, handler, params, agent, "transportCompanyId" FROM "eventSubscriptions"`
     )
     .then(subs => _.groupBy(subs, "transportCompanyId"))
 }
