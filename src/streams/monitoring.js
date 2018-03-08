@@ -1,23 +1,23 @@
-// const _ = require("lodash")
-// const pgp = require("pg-promise")()
-//
-// const db = pgp(process.env.DATABASE_URL)
+const _ = require("lodash")
+const pgp = require("pg-promise")()
 
-// const reloadEventSubscriptions = () => {
-//   console.log("Reloading event subscriptions")
-//   return db
-//     .any(
-//       `SELECT event, handler, params, agent, "transportCompanyId" FROM "eventSubscriptions"`
-//     )
-//     .then(subs => _.groupBy(subs, "transportCompanyId"))
-// }
-//
-// let lookupEventSubscriptions = reloadEventSubscriptions()
-//
-// setInterval(
-//   () => (lookupEventSubscriptions = reloadEventSubscriptions()),
-//   10 * 60 * 1000
-// )
+const db = pgp(process.env.DATABASE_URL)
+
+const reloadEventSubscriptions = () => {
+  console.log("Reloading event subscriptions")
+  return db
+    .any(
+      `SELECT event, handler, params, agent, "transportCompanyId" FROM "eventSubscriptions"`
+    )
+    .then(subs => _.groupBy(subs, "transportCompanyId"))
+}
+
+let lookupEventSubscriptions = reloadEventSubscriptions()
+
+setInterval(
+  () => (lookupEventSubscriptions = reloadEventSubscriptions()),
+  10 * 60 * 1000
+)
 
 const isPublishNoPings = record => {
   const { OldImage, NewImage } = record.dynamodb
@@ -35,13 +35,18 @@ module.exports.publish = (event, context, callback) => {
   ).map(record => record.dynamodb.NewImage)
   if (eventsToPublish.length) {
     console.log(JSON.stringify(eventsToPublish))
+    return lookupEventSubscriptions
+      .then(subsByCompany => {
+        eventsToPublish.forEach(event => {
+          const transportCompanyId = Number(
+            event.trip.M.route.M.transportCompanyId.N
+          )
+          const relevantSubscribers = subsByCompany[transportCompanyId]
+          console.log(`Event: ${event}, Subscribers ${relevantSubscribers}`)
+        })
+      })
+      .then(() => callback(null, { message: "Done" }))
+  } else {
+    return Promise.resolve(callback(null, { message: "Done" }))
   }
-  // lookupEventSubscriptions.then(subsByCompany => {
-  //   eventsToPublish.forEach(event => {
-  //     const transportCompanyId = Number(event.transportCompanyId.N)
-  //     const relevantSubscribers = subsByCompany[transportCompanyId]
-  //     console.log(`Event: ${event}, Subscribers ${relevantSubscribers}`)
-  //   })
-  // })
-  callback(undefined, "Done.")
 }
