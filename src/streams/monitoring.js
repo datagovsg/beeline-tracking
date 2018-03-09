@@ -1,18 +1,14 @@
 const _ = require("lodash")
 const pgp = require("pg-promise")()
 
-const db = pgp(process.env.DATABASE_URL)
-
-const reloadEventSubscriptions = () => {
-  console.log("Reloading event subscriptions")
+const loadEventSubscriptions = db => {
+  console.log("Loading event subscriptions")
   return db
     .any(
       `SELECT event, handler, params, agent, "transportCompanyId" FROM "eventSubscriptions"`
     )
     .then(subs => _.groupBy(subs, "transportCompanyId"))
 }
-
-let lookupEventSubscriptions = reloadEventSubscriptions()
 
 const EVENT_TO_PAYLOAD = {
   noPings: event => ({
@@ -55,7 +51,7 @@ const isPublishNoPings = record => {
   )
 }
 
-module.exports.publish = (event, context, callback) => {
+const makePublish = lookupEventSubscriptions => (event, context, callback) => {
   const eventsToPublish = event.Records.filter(
     record => record.eventName === "INSERT" || isPublishNoPings(record)
   ).map(record => record.dynamodb.NewImage)
@@ -88,3 +84,8 @@ module.exports.publish = (event, context, callback) => {
     .then(() => callback(null, { message: "Done" }))
     .catch(callback)
 }
+
+module.exports.makePublish = makePublish
+module.exports.publish = makePublish(
+  loadEventSubscriptions(pgp(process.env.DATABASE_URL))
+)
