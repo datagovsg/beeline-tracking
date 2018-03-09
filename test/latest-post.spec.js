@@ -36,7 +36,7 @@ describe('handler for POSTing pings', () => {
     const handler = makePOST(mockDynamoClient())
     handler(event, undefined, callback)
       .then(() => {
-        expect(callback.calledOnce)
+        expect(callback.calledOnce).to.be.true
 
         const [, response] = callback.firstCall.args
         expect(response.statusCode).equal(200)
@@ -59,7 +59,7 @@ describe('handler for POSTing pings', () => {
     const handler = makePOST(mockDynamoClient(errorOnInsert))
     handler(event, undefined, callback)
       .then(() => {
-        expect(callback.calledOnce)
+        expect(callback.calledOnce).to.be.true
 
         const [, response] = callback.firstCall.args
         expect(response.statusCode).equal(errorOnInsert.statusCode)
@@ -84,7 +84,7 @@ describe('handler for POSTing pings', () => {
     const handler = makePOST(mockDynamoClient())
     handler(event, undefined, callback)
       .then(() => {
-        expect(callback.calledOnce)
+        expect(callback.calledOnce).to.be.true
 
         const [, response] = callback.firstCall.args
         expect(response.statusCode).equal(400)

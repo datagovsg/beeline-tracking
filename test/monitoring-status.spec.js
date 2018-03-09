@@ -29,7 +29,7 @@ describe("Retrieving monitoring status", () => {
     auth.lookupEntitlements.rejects({ response: { data }})
     handler(event, undefined, callback)
       .then(() => {
-        expect(callback.calledOnce)
+        expect(callback.calledOnce).to.be.true
         const [, response] = callback.firstCall.args
         expect(JSON.parse(response.body)).deep.equal(data)
         done()
@@ -45,7 +45,7 @@ describe("Retrieving monitoring status", () => {
     handler(event, undefined, callback)
       .then(() => {
         expect(mockQueryPromise.notCalled)
-        expect(callback.calledOnce)
+        expect(callback.calledOnce).to.be.true
         const [, response] = callback.firstCall.args
         expect(JSON.parse(response.body)).deep.equal({})
         done()
@@ -62,8 +62,8 @@ describe("Retrieving monitoring status", () => {
       .onSecondCall().rejects()
     handler(event, undefined, callback)
       .then(() => {
-        expect(mockQueryPromise.calledTwice)
-        expect(callback.calledOnce)
+        expect(mockQueryPromise.calledTwice).to.be.true
+        expect(callback.calledOnce).to.be.true
         const [, response] = callback.firstCall.args
         expect(JSON.parse(response.body)).deep.equal({ 1: {} })
         done()
@@ -80,8 +80,8 @@ describe("Retrieving monitoring status", () => {
       .onSecondCall().resolves({ Items: [ { monitoring: { 2: {} } } ] })
     handler(event, undefined, callback)
       .then(() => {
-        expect(mockQueryPromise.calledTwice)
-        expect(callback.calledOnce)
+        expect(mockQueryPromise.calledTwice).to.be.true
+        expect(callback.calledOnce).to.be.true
         const [, response] = callback.firstCall.args
         expect(JSON.parse(response.body)).deep.equal({ 1: {}, 2: {} })
         done()

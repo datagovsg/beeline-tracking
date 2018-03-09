@@ -33,7 +33,7 @@ describe('handler for GETing pings', () => {
     const callback = sinon.spy()
     const handler = makeGET(mockDynamoClient(error))
     handler(event, undefined, callback)
-    expect(callback.calledOnce)
+    expect(callback.calledOnce).to.be.true
 
     const [, response] = callback.firstCall.args
     expect(response.statusCode).equal(500)
@@ -46,7 +46,7 @@ describe('handler for GETing pings', () => {
     const callback = sinon.spy()
     const handler = makeGET(mockDynamoClient(undefined, {Items: []}))
     handler(event, undefined, callback)
-    expect(callback.calledOnce)
+    expect(callback.calledOnce).to.be.true
 
     const [, response] = callback.firstCall.args
     expect(response.statusCode).equal(200)
@@ -59,7 +59,7 @@ describe('handler for GETing pings', () => {
     const callback = sinon.spy()
     const handler = makeGET(mockDynamoClient(undefined, {Items: [ping]}))
     handler(event, undefined, callback)
-    expect(callback.calledOnce)
+    expect(callback.calledOnce).to.be.true
 
     const [, response] = callback.firstCall.args
     expect(response.statusCode).equal(200)

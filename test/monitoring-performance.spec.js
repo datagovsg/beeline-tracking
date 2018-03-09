@@ -34,7 +34,7 @@ describe("Retrieving monitoring performance", () => {
     mockQueryPromise.resolves({ Items: [ { transportCompanyId: 2 } ] })
     handler(event, undefined, callback)
       .then(() => {
-        expect(callback.calledOnce)
+        expect(callback.calledOnce).to.be.true
         const [, response] = callback.firstCall.args
         expect(JSON.parse(response.body)).deep.equal(data)
         done()
@@ -49,7 +49,7 @@ describe("Retrieving monitoring performance", () => {
     mockQueryPromise.resolves({ Items: [ { transportCompanyId: 2 } ] })
     handler(event, undefined, callback)
       .then(() => {
-        expect(callback.calledOnce)
+        expect(callback.calledOnce).to.be.true
         const [, response] = callback.firstCall.args
         expect(JSON.parse(response.body)).deep.equal([])
         done()
@@ -64,7 +64,7 @@ describe("Retrieving monitoring performance", () => {
     mockQueryPromise.resolves({ Items: [ { transportCompanyId: 2 } ] })
     handler(event, undefined, callback)
       .then(() => {
-        expect(callback.calledOnce)
+        expect(callback.calledOnce).to.be.true
         const [, response] = callback.firstCall.args
         expect(JSON.parse(response.body)).deep.equal([])
         done()
@@ -79,7 +79,7 @@ describe("Retrieving monitoring performance", () => {
     mockQueryPromise.resolves({ Items: [ { transportCompanyId: 1 } ] })
     handler(event, undefined, callback)
       .then(() => {
-        expect(callback.calledOnce)
+        expect(callback.calledOnce).to.be.true
         const [, response] = callback.firstCall.args
         expect(JSON.parse(response.body)).deep.equal([ { transportCompanyId: 1 } ])
         done()
@@ -113,7 +113,7 @@ describe("Retrieving monitoring performance", () => {
     event.queryStringParameters.format = "csv"
     handler(event, undefined, callback)
       .then(() => {
-        expect(callback.calledOnce)
+        expect(callback.calledOnce).to.be.true
         const [, response] = callback.firstCall.args
         expect(response.body).equal(
           "routeId,date,stopId,description,road,canBoard,canAlight,pax,expectedTime,actualTime,actualLocation\n" +
