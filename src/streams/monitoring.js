@@ -1,4 +1,5 @@
 const _ = require("lodash")
+const moment = require("moment-timezone")
 const pgp = require("pg-promise")()
 const TelegramBot = require("node-telegram-bot-api")
 
@@ -61,7 +62,7 @@ const sendToTelegram = (bot, payload) => subscriber => {
 
   const message = `[${criticality}] ${
     payload.message
-  } Sent: ${new Date().toLocaleTimeString()}`
+  } Sent: ${moment.tz(new Date(), "Asia/Singapore").format("HH:mm:ss")}`
   console.log(`Sending ${telegramChatId} - ${message}`)
   // return bot.sendMessage(telegramChatId, message)
   return Promise.resolve()
