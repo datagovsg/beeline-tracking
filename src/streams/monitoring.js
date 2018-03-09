@@ -1,5 +1,6 @@
 const _ = require("lodash")
 const pgp = require("pg-promise")()
+const TelegramBot = require("node-telegram-bot-api")
 
 const loadEventSubscriptions = db => {
   console.log("Loading event subscriptions")
@@ -51,35 +52,65 @@ const isPublishNoPings = record => {
   )
 }
 
-const makePublish = lookupEventSubscriptions => (event, context, callback) => {
+const sendToTelegram = (bot, payload) => subscriber => {
+  const { agent: { notes: { telegramChatId } } } = subscriber
+  let criticality =
+    payload.severity && payload.severity >= 6
+      ? "EMERGNCY"
+      : payload.severity && payload.severity >= 5 ? "CRITICAL" : "OPS"
+
+  const message = `[${criticality}] ${
+    payload.message
+  } Sent: ${new Date().toLocaleTimeString()}`
+  console.log(`Sending ${telegramChatId} - ${message}`)
+  // return bot.sendMessage(telegramChatId, message)
+  return Promise.resolve()
+}
+
+const makePublish = (lookupEventSubscriptions, bot) => (
+  event,
+  context,
+  callback
+) => {
   const eventsToPublish = event.Records.filter(
     record => record.eventName === "INSERT" || isPublishNoPings(record)
   ).map(record => record.dynamodb.NewImage)
-  lookupEventSubscriptions
+  return lookupEventSubscriptions
     .then(subsByCompany => {
-      eventsToPublish.forEach(event => {
+      const publishPromises = eventsToPublish.map(event => {
         const transportCompanyId = Number(
           event.trip.M.route.M.transportCompanyId.N
         )
         const routeId = Number(event.trip.M.routeId.N)
         const type = event.type.S
-        const relevantSubscribers = subsByCompany[transportCompanyId].filter(
+
+        const relevantSubscribers = (
+          subsByCompany[transportCompanyId] || []
+        ).filter(
           sub =>
             sub.event === type &&
             (!sub.params.routeIds || sub.params.routeIds.includes(routeId))
         )
+        const subscribersByHandler = _.groupBy(
+          relevantSubscribers || [],
+          "handler"
+        )
+        console.warn("WARN: Only handling telegram subscribers")
+        const telegramSubscribers = subscribersByHandler.telegram
         if (
-          relevantSubscribers.length &&
+          telegramSubscribers &&
+          telegramSubscribers.length &&
           typeof EVENT_TO_PAYLOAD[type] === "function"
         ) {
           const payload = EVENT_TO_PAYLOAD[type](event)
-          console.log(
-            `Event: ${JSON.stringify(event)},
-             Payload: ${JSON.stringify(payload)},
-             Subscribers: ${JSON.stringify(relevantSubscribers)}`
+          return Promise.all(
+            telegramSubscribers.map(sendToTelegram(bot, payload))
           )
+        } else {
+          return Promise.resolve()
         }
       })
+      return Promise.all(publishPromises)
     })
     .then(() => callback(null, { message: "Done" }))
     .catch(callback)
@@ -87,5 +118,6 @@ const makePublish = lookupEventSubscriptions => (event, context, callback) => {
 
 module.exports.makePublish = makePublish
 module.exports.publish = makePublish(
-  loadEventSubscriptions(pgp(process.env.DATABASE_URL))
+  loadEventSubscriptions(pgp(process.env.DATABASE_URL)),
+  new TelegramBot(process.env.TELEGRAM_TOKEN)
 )
