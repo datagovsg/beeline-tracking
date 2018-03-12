@@ -10,9 +10,9 @@ const makeBatchWrite = (dynamoDb, tableName) => batch =>
       if (err) {
         // Just log the error, this is run regularly
         console.warn(
-          `Unable to batch write to ${tableName}: ${JSON.stringify(err)}`,
-          err.stack
+          `Unable to batch write to ${tableName}: ${JSON.stringify(err)}`
         )
+        console.warn(JSON.stringify(batch))
         resolve([])
       } else {
         const remaining = (data.UnprocessedItems[tableName] || []).map(
