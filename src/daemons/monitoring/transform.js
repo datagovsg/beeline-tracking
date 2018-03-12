@@ -22,17 +22,20 @@ function createExportPayloads({ infoByRouteId, time }) {
       routeId: info.trip.routeId,
       date: info.trip.date,
       transportCompanyId: info.trip.route.transportCompanyId,
-      stops: info.trip.tripStops.map(tripStop => ({
-        stopId: tripStop.stopId,
-        canBoard: tripStop.canBoard,
-        canAlight: tripStop.canAlight,
-        pax: tripStop.pax,
-        description: tripStop.description,
-        road: tripStop.road,
-        expectedTime: tripStop.time.toISOString(),
-        actualTime: tripStop.bestPing && tripStop.bestPing.time.toISOString(),
-        actualLocation: tripStop.bestPing && tripStop.bestPing.location,
-      })),
+      stops: info.trip.tripStops.map(tripStop => {
+        const stop = {
+          stopId: tripStop.stopId,
+          canBoard: tripStop.canBoard,
+          canAlight: tripStop.canAlight,
+          pax: tripStop.pax,
+          description: tripStop.description,
+          road: tripStop.road,
+          expectedTime: tripStop.time.toISOString(),
+          actualTime: tripStop.bestPing && tripStop.bestPing.time.toISOString(),
+          actualLocation: tripStop.bestPing && tripStop.bestPing.location,
+        }
+        return _.pickBy(stop, Boolean)
+      }),
     }))
     .value()
 
