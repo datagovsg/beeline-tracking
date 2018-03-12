@@ -17,6 +17,7 @@ provider:
     PERFORMANCE_TABLE: ${self:service}-performance-${opt:stage, self:provider.stage}
     MONITORING_TABLE: ${self:service}-monitoring-${opt:stage, self:provider.stage}
     EVENTS_TABLE: ${self:service}-events-${opt:stage, self:provider.stage}
+    EVENT_SUBS_TABLE: ${self:service}-event-subs-${opt:stage, self:provider.stage}
     AUTH0_SECRET: ${env:AUTH0_SECRET}
     API_URL: ${env:API_URL}
     DATABASE_URL: ${env:DATABASE_URL}
@@ -40,6 +41,11 @@ functions:
     timeout: 45
     events:
       - schedule: ${env:MONITORING_RATE}
+  event-subscriptions:
+    handler: src/daemons/event-subscriptions.handler
+    timeout: 120
+    events:
+      - schedule: rate(5 minutes)
   monitoring-publish:
     handler: src/streams/monitoring.publish
     timeout: 120
@@ -137,6 +143,13 @@ custom:
         minimum: 10
         maximum: 100
     - table: EventsDynamoDbTable
+      read:
+        minimum: 2
+        maximum: 100
+      write:
+        minimum: 10
+        maximum: 200
+    - table: EventSubsDynamoDbTable
       read:
         minimum: 2
         maximum: 100
@@ -276,3 +289,18 @@ resources:
         TableName: ${self:provider.environment.EVENTS_TABLE}
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
+    EventSubsDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: transportCompanyId
+            AttributeType: N
+        KeySchema:
+          -
+            AttributeName: transportCompanyId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 10
+          WriteCapacityUnits: 10
+        TableName: ${self:provider.environment.EVENT_SUBS_TABLE}
