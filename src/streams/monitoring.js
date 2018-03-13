@@ -54,12 +54,21 @@ const EVENT_TO_PAYLOAD = {
 
 const isPublishNoPings = record => {
   const { OldImage, NewImage } = record.dynamodb
-  return (
+  const publish = (
     record.eventName === "MODIFY" &&
     NewImage.type.S === "noPings" &&
     Number(NewImage.time.N) - Number(OldImage.time.N) > 60 * 60 * 1000 &&
     NewImage.activeTrip.BOOL
   )
+  if (NewImage) {
+    const routeId = NewImage.trip.M.routeId.N
+    console.log(
+      `${routeId} - ${record.eventName} ${NewImage.type.S}
+      at: ${NewImage.time.N} from: ${OldImage.time.N}
+      active: ${NewImage.activeTrip.BOOL} -> ${publish}`
+    )
+  }
+  return publish
 }
 
 const sendToTelegram = (bot, payload) => subscriber => {
