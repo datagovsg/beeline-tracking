@@ -18,7 +18,9 @@ const logCompletionOf = (v, start) => s => {
 
 module.exports.handler = (event, context, callback) => {
   const date = new Date()
-  console.log(`Starting at ${date}`)
+  console.log(`Starting at ${date} (SGT date ${
+      moment.tz(date, "Asia/Singapore").format("YYYY-MM-DD")
+  })`)
   const statusPromise = extract
     .infoByRouteId(
       db, 
