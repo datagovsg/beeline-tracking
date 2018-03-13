@@ -1,6 +1,6 @@
 const AWS = require("aws-sdk")
-const df = require("dateformat")
 const pgp = require("pg-promise")()
+const moment = require("moment-timezone")
 
 const db = pgp(process.env.DATABASE_URL)
 const dynamoDb = new AWS.DynamoDB.DocumentClient()
@@ -20,7 +20,11 @@ module.exports.handler = (event, context, callback) => {
   const date = new Date()
   console.log(`Starting at ${date}`)
   const statusPromise = extract
-    .infoByRouteId(db, dynamoDb, df(date, "isoDate"))
+    .infoByRouteId(
+      db, 
+      dynamoDb, 
+      moment.tz(date, "Asia/Singapore").format("YYYY-MM-DD")
+    )
     .then(transform.injectArrivalHistory)
     .then(transform.injectArrivalStatus)
     .then(transform.createExportPayloads)
