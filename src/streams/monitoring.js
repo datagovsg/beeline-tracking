@@ -1,5 +1,6 @@
 const _ = require("lodash")
 const AWS = require("aws-sdk")
+const df = require("dateformat")
 const moment = require("moment-timezone")
 const TelegramBot = require("node-telegram-bot-api")
 
@@ -27,9 +28,10 @@ const EVENT_TO_PAYLOAD = {
       `Driver app was not switched on ` +
       `${Math.floor(Number(event.delayInMins.N))} mins before start of ` +
       `${event.trip.M.route.M.label.S} ` +
-      `${event.trip.M.route.M.from.S} to ${event.trip.M.route.M.to.S} (on ${
-        event.trip.M.date.S
-      })`,
+      `${event.trip.M.route.M.from.S} to ${event.trip.M.route.M.to.S} (on ${df(
+        event.trip.M.date.S,
+        "d mmm yyyy"
+      )})`,
     severity: Number(event.delayInMins.N) <= 5 ? 5 : 4,
   }),
   lateArrival: event => ({
@@ -37,18 +39,20 @@ const EVENT_TO_PAYLOAD = {
       `Bus arrived ${Math.floor(Number(event.delayInMins.N))} mins late ${
         event.trip.M.route.M.label.S
       } ` +
-      `${event.trip.M.route.M.from.S} to ${event.trip.M.route.M.to.S} (${
-        event.trip.M.date.S
-      })`,
+      `${event.trip.M.route.M.from.S} to ${event.trip.M.route.M.to.S} (${df(
+        event.trip.M.date.S,
+        "d mmm yyyy"
+      )})`,
   }),
   lateETA: event => ({
     message:
       `Bus may be ${Math.floor(Number(event.delayInMins.N))} mins late ${
         event.trip.M.route.M.label.S
       } ` +
-      `${event.trip.M.route.M.from.S} to ${event.trip.M.route.M.to.S} (${
-        event.trip.M.date.S
-      })`,
+      `${event.trip.M.route.M.from.S} to ${event.trip.M.route.M.to.S} (${df(
+        event.trip.M.date.S,
+        "d mmm yyyy"
+      )})`,
   }),
 }
 
