@@ -111,7 +111,6 @@ const makePublish = (lookupEventSubscriptions, bot) => (
         const delayInMins = ["noPings", "lateETA", "lateArrival"].includes(type)
           ? Number(event.delayInMins.N)
           : undefined
-        console.log(delayInMins)
         const transportCompanyId = Number(
           event.trip.M.route.M.transportCompanyId.N
         )
