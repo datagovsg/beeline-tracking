@@ -34,6 +34,53 @@ const makeEvent = ({eventName, type, routeId, transportCompanyId}) => {
   return event
 }
 
+const persistentNoPingsEvent = {
+  Records: [{
+    eventName: "MODIFY",
+    dynamodb: {
+      OldImage: {
+        activeTrip: { BOOL: true },
+        delayInMins: { N: "5" },
+        time: { N: "0" },
+        type: { S: "noPings" },
+        trip: {
+          M: {
+            date: { S: "2018-09-09" },
+            routeId: { N: "34" },
+            route: {
+              M: {
+                transportCompanyId: { N: "3" },
+                from: { S: "Here" },
+                to: { S: "There" },
+                label: { S: "Somewhere" },
+              },
+            },
+          },
+        },
+      },
+      NewImage: {
+        activeTrip: { BOOL: true },
+        delayInMins: { N: "5" },
+        time: { N: "" + (62 * 60 * 1000) },
+        type: { S: "noPings" },
+        trip: {
+          M: {
+            date: { S: "2018-09-09" },
+            routeId: { N: "34" },
+            route: {
+              M: {
+                transportCompanyId: { N: "3" },
+                from: { S: "Here" },
+                to: { S: "There" },
+                label: { S: "Somewhere" },
+              },
+            },
+          },
+        },
+      },
+    },
+  }],
+}
 
 describe("Retrieving monitoring performance", () => {
 
@@ -127,7 +174,20 @@ describe("Retrieving monitoring performance", () => {
       .catch(done)
   })
 
-  it("Sends a message on match", done => {
+  it("Sends a message on match - modified noPings", done => {
+    const bot = sinon.createStubInstance(TelegramBot)
+    const publish = makePublish(() => Promise.resolve(subscribers), bot)
+    const callback = sinon.spy()
+    publish(persistentNoPingsEvent, undefined, callback)
+      .then(() => {
+        expect(callback.calledWith(null)).to.be.true
+        expect(bot.sendMessage.calledWith(345)).to.be.true
+      })
+      .then(done)
+      .catch(done)
+  })
+
+  it("Sends a message on match - INSERT", done => {
     const bot = sinon.createStubInstance(TelegramBot)
     const publish = makePublish(() => Promise.resolve(subscribers), bot)
     const callback = sinon.spy()

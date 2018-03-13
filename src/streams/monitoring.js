@@ -58,7 +58,7 @@ const isPublishNoPings = record => {
     record.eventName === "MODIFY" &&
     NewImage.type.S === "noPings" &&
     Number(NewImage.time.N) - Number(OldImage.time.N) > 60 * 60 * 1000 &&
-    NewImage.activeTrip.B
+    NewImage.activeTrip.BOOL
   )
 }
 
