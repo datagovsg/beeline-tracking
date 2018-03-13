@@ -54,12 +54,11 @@ const EVENT_TO_PAYLOAD = {
 
 const isPublishNoPings = record => {
   const { OldImage, NewImage } = record.dynamodb
-  const publish = (
+  const publish =
     record.eventName === "MODIFY" &&
     NewImage.type.S === "noPings" &&
     Number(NewImage.time.N) - Number(OldImage.time.N) > 60 * 60 * 1000 &&
     NewImage.activeTrip.BOOL
-  )
   if (NewImage) {
     const routeId = NewImage.trip.M.routeId.N
     console.log(
