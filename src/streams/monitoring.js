@@ -73,8 +73,7 @@ const sendToTelegram = (bot, payload) => subscriber => {
     .tz(new Date(), "Asia/Singapore")
     .format("HH:mm:ss")}`
   console.log(`Sending ${telegramChatId} - ${message}`)
-  // return bot.sendMessage(telegramChatId, message)
-  return Promise.resolve()
+  return bot.sendMessage(telegramChatId, message)
 }
 
 const makePublish = (lookupEventSubscriptions, bot) => (
