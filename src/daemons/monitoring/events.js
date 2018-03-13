@@ -6,7 +6,7 @@ const { omit } = require("lodash")
 const numFiveMins = ms => Math.ceil(ms / 60000 / 5)
 
 const alertId = (time, trip, type, severity, message) =>
-  [df(time, "isoDate"), trip.routeId, type, severity, message].join("|")
+  [moment.tz(time, "Asia/Singapore").format("YYYY-MM-DD"), trip.routeId, type, severity, message].join("|")
 
 class NotificationEvent {
   constructor(time, trip, severity, message, type) {
