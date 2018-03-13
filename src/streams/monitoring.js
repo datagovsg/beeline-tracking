@@ -136,7 +136,7 @@ const makePublish = (lookupEventSubscriptions, bot) => (
       return Promise.all(publishPromises)
     })
     .then(() => callback(null, { message: "Done" }))
-    .catch(callback)
+    .catch(err => callback(null, err))
 }
 
 module.exports.makePublish = makePublish
