@@ -1,5 +1,5 @@
 const AWS = require("aws-sdk")
-const df = require("dateformat")
+const moment = require("moment-timezone")
 const fcsv = require("fast-csv")
 const _ = require("lodash")
 
@@ -26,8 +26,9 @@ const makePerformance = dynamoDb => (event, context, callback) => {
   const { headers, pathParameters: { routeId }, queryStringParameters } = event
 
   const { from, to, format } = queryStringParameters || {}
-  const fromDate = df(new Date(from || Date.now()), "isoDate")
-  const toDate = df(new Date(to || Date.now()), "isoDate")
+  const makeSGDate = date => moment.tz(date, "Asia/Singapore").format("YYYY-MM-DD")
+  const fromDate = makeSGDate(from || Date.now())
+  const toDate = makeSGDate(to || Date.now())
 
   const lookupPerformanceByDate = dynamoDb
     .query({
