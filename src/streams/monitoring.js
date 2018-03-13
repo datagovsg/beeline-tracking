@@ -121,9 +121,9 @@ const makePublish = (lookupEventSubscriptions, bot) => (
             sub.event === type &&
             (!sub.params.routeIds || sub.params.routeIds.includes(routeId)) &&
             (!delayInMins ||
-              (sub.params.minsBefore || [sub.params.timeAfter]).includes(
-                delayInMins
-              ))
+              (sub.params.minsBefore || []).includes(delayInMins) ||
+              (sub.params.timeAfter <= delayInMins * 60000)
+            )
         )
         const subscribersByHandler = _.groupBy(
           relevantSubscribers || [],
