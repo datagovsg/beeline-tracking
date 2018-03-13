@@ -1,6 +1,6 @@
 /* eslint require-jsdoc: 0 */
 const assert = require("assert")
-const df = require("dateformat")
+const moment = require("moment-timezone")
 const { omit } = require("lodash")
 
 const numFiveMins = ms => Math.ceil(ms / 60000 / 5)
@@ -20,7 +20,7 @@ class NotificationEvent {
     this.message = message
     this.type = type || "general"
     this.alertId = alertId(time, trip, this.type, severity, message)
-    this.dateRoute = `${df(time, "isoDate")}|${trip.routeId}`
+    this.dateRoute = `${moment.tz(time, "Asia/Singapore").format("YYYY-MM-DD")}|${trip.routeId}`
   }
 }
 
