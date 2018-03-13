@@ -28,7 +28,7 @@ module.exports.handler = (event, context, callback) => {
       Promise.all([
         performance,
         status,
-        transform.filterRecentNoPings(dynamoDb),
+        transform.filterRecentNoPings(dynamoDb, events),
       ])
     )
     .then(logCompletionOf("Query", date))
