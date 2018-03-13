@@ -104,6 +104,9 @@ const makePublish = (lookupEventSubscriptions, bot) => (
       const publishPromises = eventsToPublish.map(event => {
         const routeId = Number(event.trip.M.routeId.N)
         const type = event.type.S
+        const delayInMins =
+          type === "noPings" ? Number(event.delayInMins.N) : undefined
+        console.log(delayInMins)
         const transportCompanyId = Number(
           event.trip.M.route.M.transportCompanyId.N
         )
@@ -112,7 +115,8 @@ const makePublish = (lookupEventSubscriptions, bot) => (
         ).filter(
           sub =>
             sub.event === type &&
-            (!sub.params.routeIds || sub.params.routeIds.includes(routeId))
+            (!sub.params.routeIds || sub.params.routeIds.includes(routeId)) &&
+            (!delayInMins || sub.params.minsBefore.includes(delayInMins))
         )
         const subscribersByHandler = _.groupBy(
           relevantSubscribers || [],

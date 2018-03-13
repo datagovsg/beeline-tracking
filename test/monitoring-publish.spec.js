@@ -11,7 +11,7 @@ const makeEvent = ({eventName, type, routeId, transportCompanyId}) => {
       eventName: eventName || "INSERT",
       dynamodb: {
         NewImage: {
-          delayInMins: { N: "34" },
+          delayInMins: { N: "5" },
           type: { S: type || "noPings" },
           trip: {
             M: {
@@ -89,7 +89,7 @@ describe("Retrieving monitoring performance", () => {
     [{
       id: 1,
       event: "noPings",
-      params: { routeIds: [34] },
+      params: { routeIds: [34], minsBefore: [5] },
       handler: "telegram",
       agent: { notes: { telegramChatId: 345 } },
       transportCompanyId: 3,
