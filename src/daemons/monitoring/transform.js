@@ -10,6 +10,51 @@ const trigDistance = (a, b) => {
   )
 }
 
+const filterRecentNoPings = (dynamoDb, events) => {
+  const [noPingsEvents, otherEvents] = _.partition(
+    events,
+    e => e.type === "noPings"
+  )
+  const keyParamsArray = noPingsEvents.map(e => ({
+    ":dateRoute": e.dateRoute,
+    ":alertId": e.alertId,
+  }))
+  const previousNoPingsEventsPromise = Promise.all(
+    keyParamsArray.map(
+      keyParams =>
+        new Promise((resolve, reject) => {
+          const params = {
+            KeyConditionExpression:
+              "dateRoute = :dateRoute AND alertId = :alertId",
+            TableName: process.env.EVENTS_TABLE,
+            ExpressionAttributeValues: keyParams,
+          }
+          dynamoDb.query(params, (error, data) => {
+            if (error) {
+              reject(error)
+            } else {
+              const [value] = data.Items || []
+              resolve(value)
+            }
+          })
+        })
+    )
+  )
+
+  return previousNoPingsEventsPromise
+    .then(previousNoPingsEvents =>
+      noPingsEvents.filter(noPings =>
+        previousNoPingsEvents.find(
+          previousNoPings =>
+            previousNoPings &&
+            previousNoPings.alertId === noPings.alertId &&
+            noPings.time - previousNoPings.time > 60 * 60 * 1000
+        )
+      )
+    )
+    .then(filteredNoPings => otherEvents.concat(filteredNoPings))
+}
+
 /**
  * @param {Number} time - the timestamp of this status
  * @param {Object} infoByRouteId - a collection of ping-annotated trip stops keyed by routeId
@@ -207,5 +252,6 @@ function injectArrivalHistory([infoByRouteId, pingsByRouteId]) {
 module.exports = {
   injectArrivalHistory,
   injectArrivalStatus,
+  filterRecentNoPings,
   createExportPayloads,
 }

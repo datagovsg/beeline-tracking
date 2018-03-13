@@ -24,6 +24,13 @@ module.exports.handler = (event, context, callback) => {
     .then(transform.injectArrivalHistory)
     .then(transform.injectArrivalStatus)
     .then(transform.createExportPayloads)
+    .then(([performance, status, events]) =>
+      Promise.all([
+        performance,
+        status,
+        transform.filterRecentNoPings(dynamoDb),
+      ])
+    )
     .then(logCompletionOf("Query", date))
     .then(payloads => load(dynamoDb, payloads))
     .then(logCompletionOf("Entire operation", date))
