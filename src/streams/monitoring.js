@@ -121,7 +121,7 @@ const makePublish = (lookupEventSubscriptions, bot) => (
             sub.event === type &&
             (!sub.params.routeIds || sub.params.routeIds.includes(routeId)) &&
             (!delayInMins ||
-              (sub.params.minsBefore || sub.params.timeAfter).includes(
+              (sub.params.minsBefore || [sub.params.timeAfter]).includes(
                 delayInMins
               ))
         )
