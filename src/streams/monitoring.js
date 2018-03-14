@@ -7,16 +7,14 @@ const TelegramBot = require("node-telegram-bot-api")
 const loadEventSubscriptions = dynamoDb => transportCompanyId => {
   return new Promise((resolve, reject) => {
     const params = {
-      KeyConditionExpression: "transportCompanyId = :v1",
       TableName: process.env.EVENT_SUBS_TABLE,
-      ExpressionAttributeValues: { ":v1": transportCompanyId },
+      Key: { transportCompanyId },
     }
-    dynamoDb.query(params, (error, data) => {
+    dynamoDb.get(params, (error, data) => {
       if (error) {
         reject(error)
       } else {
-        const [value] = data.Items || []
-        resolve([transportCompanyId, (value || {}).subscriptions || []])
+        resolve([transportCompanyId, (data.Item || {}).subscriptions || []])
       }
     })
   })
@@ -122,8 +120,7 @@ const makePublish = (lookupEventSubscriptions, bot) => (
             (!sub.params.routeIds || sub.params.routeIds.includes(routeId)) &&
             (!delayInMins ||
               (sub.params.minsBefore || []).includes(delayInMins) ||
-              (sub.params.timeAfter <= delayInMins * 60000)
-            )
+              sub.params.timeAfter <= delayInMins * 60000)
         )
         const subscribersByHandler = _.groupBy(
           relevantSubscribers || [],

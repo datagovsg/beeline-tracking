@@ -15,26 +15,22 @@ const filterRecentNoPings = (dynamoDb, events) => {
     events,
     e => e.type === "noPings"
   )
-  const keyParamsArray = noPingsEvents.map(e => ({
-    ":dateRoute": e.dateRoute,
-    ":alertId": e.alertId,
-  }))
+  const keyParamsArray = noPingsEvents.map(e =>
+    _.pick(e, ["dateRoute", "alertId"])
+  )
   const previousNoPingsEventsPromise = Promise.all(
     keyParamsArray.map(
-      keyParams =>
+      Key =>
         new Promise((resolve, reject) => {
           const params = {
-            KeyConditionExpression:
-              "dateRoute = :dateRoute AND alertId = :alertId",
             TableName: process.env.EVENTS_TABLE,
-            ExpressionAttributeValues: keyParams,
+            Key,
           }
-          dynamoDb.query(params, (error, data) => {
+          dynamoDb.get(params, (error, data) => {
             if (error) {
               reject(error)
             } else {
-              const [value] = data.Items || []
-              resolve(value)
+              resolve(data.Item)
             }
           })
         })

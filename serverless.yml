@@ -27,6 +27,7 @@ provider:
       Action:
         - dynamodb:Query
         - dynamodb:BatchWriteItem
+        - dynamodb:GetItem
         - dynamodb:PutItem
         - dynamodb:GetRecords
         - dynamodb:GetShardIterator
