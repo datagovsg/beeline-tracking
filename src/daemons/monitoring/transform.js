@@ -43,14 +43,15 @@ const filterRecentNoPings = (dynamoDb, events) => {
 
   return previousNoPingsEventsPromise
     .then(previousNoPingsEvents =>
-      noPingsEvents.filter(noPings =>
-        previousNoPingsEvents.find(
+      noPingsEvents.filter(noPings => {
+        const previousNoPings = previousNoPingsEvents.find(
           previousNoPings =>
             previousNoPings &&
             previousNoPings.alertId === noPings.alertId &&
-            noPings.time - previousNoPings.time > 60 * 60 * 1000
+            noPings.time - previousNoPings.time <= 60 * 60 * 1000
         )
-      )
+        return !previousNoPings
+      })
     )
     .then(filteredNoPings => otherEvents.concat(filteredNoPings))
 }
