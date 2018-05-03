@@ -94,7 +94,13 @@ const makePublish = (lookupEventSubscriptions, bot) => (
 ) => {
   const eventsToPublish = event.Records.filter(
     record => record.eventName === "INSERT" || isPublishNoPings(record)
-  ).map(record => record.dynamodb.NewImage)
+  )
+    .map(record => record.dynamodb.NewImage)
+    .filter(
+      event =>
+        event.trip.M.date.S ===
+        moment.tz(new Date(), "Asia/Singapore").format("YYYY-MM-DD")
+    )
 
   const transportCompanyIds = eventsToPublish.map(event =>
     Number(event.trip.M.route.M.transportCompanyId.N)

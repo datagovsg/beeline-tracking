@@ -1,5 +1,6 @@
 const { expect } = require("chai")
 const sinon = require("sinon")
+const moment = require("moment-timezone")
 
 const TelegramBot = require("node-telegram-bot-api")
 
@@ -15,7 +16,7 @@ const makeEvent = ({eventName, type, routeId, transportCompanyId}) => {
           type: { S: type || "noPings" },
           trip: {
             M: {
-              date: { S: "2018-09-09" },
+              date: { S: moment.tz(new Date(), "Asia/Singapore").format("YYYY-MM-DD") },
               routeId: { N: routeId || "34" },
               route: {
                 M: {
@@ -45,7 +46,7 @@ const persistentNoPingsEvent = {
         type: { S: "noPings" },
         trip: {
           M: {
-            date: { S: "2018-09-09" },
+            date: { S: moment.tz(new Date(), "Asia/Singapore").format("YYYY-MM-DD") },
             routeId: { N: "34" },
             route: {
               M: {
@@ -65,7 +66,7 @@ const persistentNoPingsEvent = {
         type: { S: "noPings" },
         trip: {
           M: {
-            date: { S: "2018-09-09" },
+            date: { S: moment.tz(new Date(), "Asia/Singapore").format("YYYY-MM-DD") },
             routeId: { N: "34" },
             route: {
               M: {
@@ -82,7 +83,7 @@ const persistentNoPingsEvent = {
   }],
 }
 
-describe("Retrieving monitoring performance", () => {
+describe("Retrieving monitoring event publication", () => {
 
   const subscribers = [
     3,
