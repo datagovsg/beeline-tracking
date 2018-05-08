@@ -35,7 +35,7 @@ const makePUT = dynamoDb => (event, context, callback) => {
       })
     })
     .catch(error => {
-      console.error(`Error with ${Authorization}: ${error}`)
+      console.error(error)
       if (error.response) {
         const { data, status } = error.response
         callbackWith(status, data)
