@@ -63,6 +63,7 @@ function createExportPayloads({ infoByRouteId, time }) {
     .map(info => ({
       routeId: info.trip.routeId,
       date: info.trip.date,
+      label: info.trip.route.label,
       transportCompanyId: info.trip.route.transportCompanyId,
       stops: info.trip.tripStops.map(tripStop => {
         const stop = {
