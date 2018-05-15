@@ -55,6 +55,7 @@ const makePerformance = dynamoDb => (event, context, callback) => {
     const columnNames = [
       "routeId",
       "date",
+      "label",
       "stopId",
       "description",
       "road",
@@ -70,6 +71,7 @@ const makePerformance = dynamoDb => (event, context, callback) => {
         d.stops.map(s => [
           d.routeId,
           d.date,
+          d.label,
           s.stopId,
           s.description,
           s.road,
