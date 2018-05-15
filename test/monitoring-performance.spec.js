@@ -1,5 +1,6 @@
 const { expect } = require("chai")
 const sinon = require("sinon")
+const moment = require("moment-timezone")
 
 const auth = require("../src/utils/auth")
 const { makePerformance } = require("../src/monitoring")
@@ -95,6 +96,7 @@ describe("Retrieving monitoring performance", () => {
       transportCompanyId: 1,
       routeId: 23,
       date: "2018-02-01",
+      label: "B99",
       stops: [
         {
           stopId: 4,
@@ -116,18 +118,19 @@ describe("Retrieving monitoring performance", () => {
         expect(callback.calledOnce).to.be.true
         const [, response] = callback.firstCall.args
         expect(response.body).equal(
-          "routeId,date,stopId,description,road,canBoard,canAlight,pax,expectedTime,actualTime,actualLocation\n" +
+          "routeId,date,label,stopId,description,road,canBoard,canAlight,pax,expectedTime,actualTime,actualLocation\n" +
           [
             routeData.routeId,
             routeData.date,
+            routeData.label,
             routeData.stops[0].stopId,
             routeData.stops[0].description,
             routeData.stops[0].road,
             routeData.stops[0].canBoard,
             routeData.stops[0].canAlight,
             routeData.stops[0].pax,
-            routeData.stops[0].expectedTime,
-            routeData.stops[0].actualTime,
+            moment.tz(routeData.stops[0].expectedTime, "Asia/Singapore").toISOString(true),
+            moment.tz(routeData.stops[0].actualTime, "Asia/Singapore").toISOString(true),
             routeData.stops[0].actualLocation,
           ].join(",")
         )

@@ -26,6 +26,8 @@ const makePerformance = dynamoDb => (event, context, callback) => {
   const { headers, pathParameters: { routeId }, queryStringParameters } = event
 
   const { from, to, format } = queryStringParameters || {}
+  const makeSGTimestampString = date =>
+    date ? moment.tz(date, "Asia/Singapore").toISOString(true) : date
   const makeSGDate = date =>
     moment.tz(date, "Asia/Singapore").format("YYYY-MM-DD")
   const fromDate = makeSGDate(from || Date.now())
@@ -79,8 +81,8 @@ const makePerformance = dynamoDb => (event, context, callback) => {
           s.canBoard,
           s.canAlight,
           s.pax,
-          s.expectedTime,
-          s.actualTime,
+          makeSGTimestampString(s.expectedTime),
+          makeSGTimestampString(s.actualTime),
           s.actualLocation,
         ])
       )
