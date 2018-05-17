@@ -118,7 +118,7 @@ describe("Retrieving monitoring performance", () => {
         expect(callback.calledOnce).to.be.true
         const [, response] = callback.firstCall.args
         expect(response.body).equal(
-          "routeId,date,label,stopId,description,road,canBoard,canAlight,pax,expectedTime,actualTime,actualLocation\n" +
+          "routeId,date,label,stopId,description,road,canBoard,canAlight,pax,expectedTime,actualTime,actualLocation,timeDifferenceMinutes\n" +
           [
             routeData.routeId,
             routeData.date,
@@ -132,6 +132,7 @@ describe("Retrieving monitoring performance", () => {
             moment.tz(routeData.stops[0].expectedTime, "Asia/Singapore").toISOString(true),
             moment.tz(routeData.stops[0].actualTime, "Asia/Singapore").toISOString(true),
             routeData.stops[0].actualLocation,
+            moment(routeData.stops[0].actualTime).diff(routeData.stops[0].expectedTime, "minutes"),
           ].join(",")
         )
         done()

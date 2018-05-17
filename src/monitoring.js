@@ -68,6 +68,7 @@ const makePerformance = dynamoDb => (event, context, callback) => {
       "expectedTime",
       "actualTime",
       "actualLocation",
+      "timeDifferenceMinutes",
     ]
     const rows = _(data)
       .map(d =>
@@ -84,6 +85,7 @@ const makePerformance = dynamoDb => (event, context, callback) => {
           makeSGTimestampString(s.expectedTime),
           makeSGTimestampString(s.actualTime),
           s.actualLocation,
+          s.actualTime ? moment(s.actualTime).diff(s.expectedTime, "minutes") : null,
         ])
       )
       .flatten()
