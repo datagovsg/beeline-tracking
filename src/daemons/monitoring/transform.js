@@ -88,6 +88,7 @@ function createExportPayloads({ infoByRouteId, time }) {
     const companyInfo = infoByCompanyId[transportCompanyId] || {
       transportCompanyId,
       time,
+      ttl: time / 1000,
       monitoring: {},
     }
     if (!infoByCompanyId[transportCompanyId]) {
