@@ -6,6 +6,8 @@ const _ = require("lodash")
 const auth = require("./utils/auth")
 const { callbackWithFactory } = require("./utils/callback-helpers")
 
+const sgMoment = date => moment.tz(date, "Asia/Singapore")
+
 const lookupTransportCompanyIds = headers =>
   auth
     .lookupEntitlements(headers)
@@ -27,9 +29,8 @@ const makePerformance = dynamoDb => (event, context, callback) => {
 
   const { from, to, format } = queryStringParameters || {}
   const makeSGTimestampString = date =>
-    date ? moment.tz(date, "Asia/Singapore").toISOString(true) : date
-  const makeSGDate = date =>
-    moment.tz(date, "Asia/Singapore").format("YYYY-MM-DD")
+    date ? sgMoment(date).toISOString(true) : date
+  const makeSGDate = date => sgMoment(date).format("YYYY-MM-DD")
   const fromDate = makeSGDate(from || Date.now())
   const toDate = makeSGDate(to || Date.now())
 
@@ -85,7 +86,9 @@ const makePerformance = dynamoDb => (event, context, callback) => {
           makeSGTimestampString(s.expectedTime),
           makeSGTimestampString(s.actualTime),
           s.actualLocation,
-          s.actualTime ? moment(s.actualTime).diff(s.expectedTime, "minutes") : null,
+          s.actualTime
+            ? moment(s.actualTime).diff(s.expectedTime, "minutes")
+            : null,
         ])
       )
       .flatten()
@@ -133,14 +136,18 @@ const makePerformance = dynamoDb => (event, context, callback) => {
 const makeStatus = dynamoDb => (event, context, callback) => {
   const callbackWith = callbackWithFactory(callback)
   const { headers } = event
+  const time = sgMoment(new Date())
+    .startOf("date")
+    .valueOf()
 
   const lookupMonitoringById = transportCompanyId =>
     dynamoDb
       .query({
         ExpressionAttributeValues: {
           ":v1": transportCompanyId,
+          ":v2": time,
         },
-        KeyConditionExpression: "transportCompanyId = :v1",
+        KeyConditionExpression: "transportCompanyId = :v1 AND time >= :v2",
         TableName: process.env.MONITORING_TABLE,
         ScanIndexForward: false,
         Limit: 1,
