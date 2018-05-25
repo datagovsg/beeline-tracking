@@ -2,7 +2,6 @@ const AWS = require("aws-sdk")
 const moment = require("moment-timezone")
 const fcsv = require("fast-csv")
 const _ = require("lodash")
-const { promisify } = require("util")
 
 const auth = require("./utils/auth")
 const { callbackWithFactory } = require("./utils/callback-helpers")
@@ -36,8 +35,20 @@ const csvFrom = function csvFrom(data, columnNames, dataToRows) {
     .map(dataToRows)
     .flatten()
     .value()
-  const options = { headers: true }
-  return promisify(fcsv.writeToString)([columnNames].concat(rows), options)
+
+  return new Promise((resolve, reject) =>
+    fcsv.writeToString(
+      [columnNames].concat(rows),
+      { headers: true },
+      (err, output) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(output)
+        }
+      }
+    )
+  )
 }
 
 const onError = callbackWith => error => {
