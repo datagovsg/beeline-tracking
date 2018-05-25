@@ -2,18 +2,43 @@ const AWS = require("aws-sdk")
 const moment = require("moment-timezone")
 const fcsv = require("fast-csv")
 const _ = require("lodash")
+const { promisify } = require("util")
 
 const auth = require("./utils/auth")
 const { callbackWithFactory } = require("./utils/callback-helpers")
 
 const sgMoment = date => moment.tz(date, "Asia/Singapore")
+const makeSGTimestampString = date =>
+  date ? sgMoment(date).toISOString(true) : date
+const makeSGDate = date => sgMoment(date).format("YYYY-MM-DD")
 
-const lookupTransportCompanyIds = headers =>
-  auth
+const lookupTransportCompanyIds = function lookupTransportCompanyIds(headers) {
+  return auth
     .lookupEntitlements(headers)
     .then(credentials =>
       auth.getCompaniesByRole(credentials, "monitor-operations")
     )
+}
+
+const lookup = function lookup(dynamoDb, query) {
+  return dynamoDb
+    .query(query)
+    .promise()
+    .then(data => data.Items || [])
+    .catch(err => {
+      console.error(err)
+      return []
+    })
+}
+
+const csvFrom = function csvFrom(data, columnNames, dataToRows) {
+  const rows = _(data)
+    .map(dataToRows)
+    .flatten()
+    .value()
+  const options = { headers: true }
+  return promisify(fcsv.writeToString)([columnNames].concat(rows), options)
+}
 
 const onError = callbackWith => error => {
   if (error.response) {
@@ -28,105 +53,74 @@ const makePerformance = dynamoDb => (event, context, callback) => {
   const { headers, pathParameters: { routeId }, queryStringParameters } = event
 
   const { from, to, format } = queryStringParameters || {}
-  const makeSGTimestampString = date =>
-    date ? sgMoment(date).toISOString(true) : date
-  const makeSGDate = date => sgMoment(date).format("YYYY-MM-DD")
   const fromDate = makeSGDate(from || Date.now())
   const toDate = makeSGDate(to || Date.now())
 
-  const lookupPerformanceByDate = dynamoDb
-    .query({
-      ExpressionAttributeValues: {
-        ":v1": Number(routeId),
-        ":d1": fromDate,
-        ":d2": toDate,
-      },
-      ExpressionAttributeNames: {
-        "#date": "date",
-      },
-      KeyConditionExpression: "routeId = :v1 AND #date BETWEEN :d1 AND :d2",
-      TableName: process.env.PERFORMANCE_TABLE,
-      ScanIndexForward: false,
-    })
-    .promise()
-    .then(data => data.Items || [])
-    .catch(err => {
-      console.error(err)
-      return []
-    })
+  const performanceByDateQuery = {
+    ExpressionAttributeValues: {
+      ":v1": Number(routeId),
+      ":d1": fromDate,
+      ":d2": toDate,
+    },
+    ExpressionAttributeNames: {
+      "#date": "date",
+    },
+    KeyConditionExpression: "routeId = :v1 AND #date BETWEEN :d1 AND :d2",
+    TableName: process.env.PERFORMANCE_TABLE,
+    ScanIndexForward: false,
+  }
 
-  const csvFrom = data => {
-    const columnNames = [
-      "routeId",
-      "date",
-      "label",
-      "stopId",
-      "description",
-      "road",
-      "canBoard",
-      "canAlight",
-      "pax",
-      "expectedTime",
-      "actualTime",
-      "actualLocation",
-      "timeDifferenceMinutes",
-    ]
-    const rows = _(data)
-      .map(d =>
-        d.stops.map(s => [
-          d.routeId,
-          d.date,
-          d.label,
-          s.stopId,
-          s.description,
-          s.road,
-          s.canBoard,
-          s.canAlight,
-          s.pax,
-          makeSGTimestampString(s.expectedTime),
-          makeSGTimestampString(s.actualTime),
-          s.actualLocation,
-          s.actualTime
-            ? moment(s.actualTime).diff(s.expectedTime, "minutes")
-            : null,
-        ])
-      )
-      .flatten()
-      .value()
+  const columnNames = [
+    "routeId",
+    "date",
+    "label",
+    "stopId",
+    "description",
+    "road",
+    "canBoard",
+    "canAlight",
+    "pax",
+    "expectedTime",
+    "actualTime",
+    "actualLocation",
+    "timeDifferenceMinutes",
+  ]
 
-    const csvPromise = new Promise((resolve, reject) =>
-      fcsv.writeToString(
-        [columnNames].concat(rows),
-        { headers: true },
-        (err, output) => {
-          if (err) {
-            reject(err)
-          } else {
-            resolve(output)
-          }
-        }
-      )
-    )
+  const dataToRows = d =>
+    d.stops.map(s => [
+      d.routeId,
+      d.date,
+      d.label,
+      s.stopId,
+      s.description,
+      s.road,
+      s.canBoard,
+      s.canAlight,
+      s.pax,
+      makeSGTimestampString(s.expectedTime),
+      makeSGTimestampString(s.actualTime),
+      s.actualLocation,
+      s.actualTime
+        ? moment(s.actualTime).diff(s.expectedTime, "minutes")
+        : null,
+    ])
 
-    const headers = {
-      "Content-Type": "text/csv",
-      "Content-Disposition": `attachment; filename="${routeId} - ${
-        fromDate
-      } to ${toDate}.csv"`,
-    }
-    return Promise.all([csvPromise, headers])
+  const filename = `${routeId} - ${fromDate} to ${toDate}.csv`
+  const csvHeaders = {
+    "Content-Type": "text/csv",
+    "Content-Disposition": `attachment; filename="${filename}"`,
   }
 
   return Promise.all([
     lookupTransportCompanyIds(headers),
-    lookupPerformanceByDate,
+    lookup(dynamoDb, performanceByDateQuery),
   ])
     .then(([transportCompanyIds, performance]) => {
       const data = performance.filter(p =>
         transportCompanyIds.includes(p.transportCompanyId)
       )
       return format === "csv"
-        ? csvFrom(data)
+        ? Promise.all([csvFrom(data, columnNames, dataToRows), csvHeaders])
         : Promise.resolve([data, undefined])
     })
     .then(([data, headers]) => callbackWith(200, data, headers))
@@ -140,30 +134,25 @@ const makeStatus = dynamoDb => (event, context, callback) => {
     .startOf("date")
     .valueOf()
 
+  const queryStatusBy = transportCompanyId => ({
+    ExpressionAttributeNames: {
+      "#time": "time",
+    },
+    ExpressionAttributeValues: {
+      ":v1": transportCompanyId,
+      ":v2": time,
+    },
+    KeyConditionExpression: "transportCompanyId = :v1 AND #time >= :v2",
+    TableName: process.env.MONITORING_TABLE,
+    ScanIndexForward: false,
+    Limit: 1,
+  })
+
   const lookupMonitoringById = transportCompanyId =>
-    dynamoDb
-      .query({
-        ExpressionAttributeNames: {
-          "#time": "time",
-        },
-        ExpressionAttributeValues: {
-          ":v1": transportCompanyId,
-          ":v2": time,
-        },
-        KeyConditionExpression: "transportCompanyId = :v1 AND #time >= :v2",
-        TableName: process.env.MONITORING_TABLE,
-        ScanIndexForward: false,
-        Limit: 1,
-      })
-      .promise()
-      .then(data => {
-        const [status] = data.Items || []
-        return (status || {}).monitoring || {}
-      })
-      .catch(err => {
-        console.error(err)
-        return {}
-      })
+    lookup(dynamoDb, queryStatusBy(transportCompanyId)).then(items => {
+      const [status] = items || []
+      return (status || {}).monitoring || {}
+    })
 
   const lookupMonitoring = lookupTransportCompanyIds(headers).then(
     transportCompanyIds =>
