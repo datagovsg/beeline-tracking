@@ -72,6 +72,13 @@ functions:
           path: routes/{routeId}/performance
           method: get
           cors: true
+  monitoring-events:
+    handler: src/monitoring.events
+    events:
+      - http:
+          path: routes/{routeId}/events
+          method: get
+          cors: true
   latest-post:
     handler: src/latest.post
     events:

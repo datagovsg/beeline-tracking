@@ -127,6 +127,69 @@ const makePerformance = dynamoDb => (event, context, callback) => {
     .catch(onError(callbackWith))
 }
 
+const makeEvents = dynamoDb => (event, context, callback) => {
+  const callbackWith = callbackWithFactory(callback)
+  const { headers, pathParameters: { routeId }, queryStringParameters } = event
+
+  const { date, format } = queryStringParameters || {}
+  const key = `${makeSGDate(date || Date.now())}|${routeId}`
+
+  const eventsByDateQuery = {
+    ExpressionAttributeValues: {
+      ":v1": key,
+    },
+    KeyConditionExpression: "dateRoute = :v1",
+    TableName: process.env.EVENTS_TABLE,
+    ScanIndexForward: false,
+  }
+
+  const columnNames = [
+    "routeId",
+    "date",
+    "label",
+    "time",
+    "type",
+    "severity",
+    "delayInMins",
+    "message",
+  ]
+  const dataToRows = d => {
+    const [date, routeId] = d.dateRoute.split("|")
+    return [
+      [
+        routeId,
+        date,
+        d.trip.route.label,
+        makeSGTimestampString(d.time),
+        d.type,
+        d.severity,
+        d.delayInMins,
+        d.message,
+      ],
+    ]
+  }
+
+  const csvHeaders = {
+    "Content-Type": "text/csv",
+    "Content-Disposition": `attachment; filename="${routeId} - ${date}.csv"`,
+  }
+
+  return Promise.all([
+    lookupTransportCompanyIds(headers),
+    lookup(dynamoDb, eventsByDateQuery),
+  ])
+    .then(([transportCompanyIds, events]) => {
+      const data = events.filter(e =>
+        transportCompanyIds.includes(e.trip.route.transportCompanyId)
+      )
+      return format === "csv"
+        ? Promise.all([csvFrom(data, columnNames, dataToRows), csvHeaders])
+        : Promise.resolve([data, undefined])
+    })
+    .then(([data, headers]) => callbackWith(200, data, headers))
+    .catch(onError(callbackWith))
+}
+
 const makeStatus = dynamoDb => (event, context, callback) => {
   const callbackWith = callbackWithFactory(callback)
   const { headers } = event
@@ -170,8 +233,10 @@ const makeStatus = dynamoDb => (event, context, callback) => {
 
 const makeExports = dynamoDb => ({
   makeStatus,
+  makeEvents,
   makePerformance,
   performance: makePerformance(dynamoDb),
+  events: makeEvents(dynamoDb),
   status: makeStatus(dynamoDb),
 })
 
