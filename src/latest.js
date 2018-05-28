@@ -29,7 +29,6 @@ const makePOST = dynamoDb => (event, context, callback) => {
             console.error(error)
             callbackWith(error.statusCode || 501, { item: params.Item, error })
           } else {
-            console.log(params.Item)
             callbackWith(200, { item: params.Item })
           }
         })
