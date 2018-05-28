@@ -23,15 +23,17 @@ const makePOST = dynamoDb => (event, context, callback) => {
         Item: { tripId, driverId, vehicleId, time, location },
       }
 
-      dynamoDb.put(params, error => {
-        if (error) {
-          console.error(error)
-          callbackWith(error.statusCode || 501, { item: params.Item, error })
-        } else {
-          console.log(params.Item)
-          callbackWith(200, { item: params.Item })
-        }
-      })
+      return dynamoDb
+        .put(params, error => {
+          if (error) {
+            console.error(error)
+            callbackWith(error.statusCode || 501, { item: params.Item, error })
+          } else {
+            console.log(params.Item)
+            callbackWith(200, { item: params.Item })
+          }
+        })
+        .promise()
     })
     .catch(error => {
       console.error(error)

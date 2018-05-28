@@ -7,7 +7,10 @@ const {makePOST} = require('../src/latest')
 
 describe('handler for POSTing pings', () => {
   const mockDynamoClient = (errorOnInsert) => ({
-    put: (params, onInsert) => onInsert(errorOnInsert),
+    put: (params, onInsert) => {
+      onInsert(errorOnInsert)
+      return { promise: () => Promise.resolve() }
+    },
   })
 
   const ping = {
