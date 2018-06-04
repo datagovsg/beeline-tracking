@@ -162,7 +162,6 @@ const makeEvents = dynamoDb => (event, context, callback) => {
     "type",
     "severity",
     "delayInMins",
-    "message",
   ]
   const dataToRows = d => {
     const [date, routeId] = d.dateRoute.split("|")
@@ -175,7 +174,6 @@ const makeEvents = dynamoDb => (event, context, callback) => {
         d.type,
         d.severity,
         d.delayInMins,
-        d.message,
       ],
     ]
   }
@@ -190,8 +188,10 @@ const makeEvents = dynamoDb => (event, context, callback) => {
     lookup(dynamoDb, eventsByDateQuery),
   ])
     .then(([transportCompanyIds, events]) => {
-      const data = events.filter(e =>
-        transportCompanyIds.includes(e.trip.route.transportCompanyId)
+      const data = events.filter(
+        e =>
+          transportCompanyIds.includes(e.trip.route.transportCompanyId) &&
+          Number(e.severity) > 0
       )
       return format === "csv"
         ? Promise.all([csvFrom(data, columnNames, dataToRows), csvHeaders])

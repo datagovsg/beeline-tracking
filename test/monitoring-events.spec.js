@@ -80,7 +80,10 @@ describe("Retrieving monitoring events", () => {
     auth.lookupEntitlements.resolves()
     auth.getCompaniesByRole.resolves([1, 2])
 
-    const monitoringEvent =  { trip: { route: { transportCompanyId: 1 } }  }
+    const monitoringEvent =  {
+      trip: { route: { transportCompanyId: 1 } },
+      severity: 1,
+    }
 
     mockQueryPromise.resolves({ Items: [ monitoringEvent ] })
     handler(event, undefined, callback)
@@ -121,7 +124,7 @@ describe("Retrieving monitoring events", () => {
         expect(callback.calledOnce).to.be.true
         const [, response] = callback.firstCall.args
         expect(response.body).equal(
-          "routeId,date,label,time,type,severity,delayInMins,message\n" +
+          "routeId,date,label,time,type,severity,delayInMins\n" +
           [
             routeId,
             moment.tz(date, "Asia/Singapore").format("YYYY-MM-DD"),
@@ -130,7 +133,6 @@ describe("Retrieving monitoring events", () => {
             routeData.type,
             routeData.severity,
             routeData.delayInMins,
-            routeData.message,
           ].join(",")
         )
         done()
