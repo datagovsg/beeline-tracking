@@ -124,7 +124,7 @@ describe("Retrieving monitoring events", () => {
         expect(callback.calledOnce).to.be.true
         const [, response] = callback.firstCall.args
         expect(response.body).equal(
-          "routeId,date,label,time,type,severity,delayInMins\n" +
+          "routeId,date,label,time,type,severity,delayInMins,message\n" +
           [
             routeId,
             moment.tz(date, "Asia/Singapore").format("YYYY-MM-DD"),
@@ -133,6 +133,7 @@ describe("Retrieving monitoring events", () => {
             routeData.type,
             routeData.severity,
             routeData.delayInMins,
+            routeData.message,
           ].join(",")
         )
         done()

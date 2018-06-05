@@ -162,6 +162,7 @@ const makeEvents = dynamoDb => (event, context, callback) => {
     "type",
     "severity",
     "delayInMins",
+    "message",
   ]
   const dataToRows = d => {
     const [date, routeId] = d.dateRoute.split("|")
@@ -174,6 +175,7 @@ const makeEvents = dynamoDb => (event, context, callback) => {
         d.type,
         d.severity,
         d.delayInMins,
+        d.message,
       ],
     ]
   }
