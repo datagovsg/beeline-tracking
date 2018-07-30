@@ -28,7 +28,7 @@
     "moxios": "^0.4.0",
     "pre-commit": "^1.2.2",
     "prettier": "1.8.2",
-    "serverless": "^1.26.1",
+    "serverless": "^1.29.1",
     "serverless-dynamodb-autoscaling": "^0.6.2",
     "shelljs": "^0.7.8",
     "sinon": "^4.1.2",
