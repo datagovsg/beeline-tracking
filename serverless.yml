@@ -67,6 +67,7 @@ functions:
           cors: true
   monitoring-performance:
     handler: src/monitoring.performance
+    timeout: 30
     events:
       - http:
           path: routes/{routeId}/performance
