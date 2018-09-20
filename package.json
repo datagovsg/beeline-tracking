@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Trip-level bus location tracking for Beeline",
   "author": "Government Technology Agency of Singapore (https://www.tech.gov.sg)",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "dependencies": {
     "aws-sdk": "^2.156.0",
     "axios": "^0.17.1",
