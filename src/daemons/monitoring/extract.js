@@ -39,7 +39,7 @@ SELECT DISTINCT
 trips.id as "tripId",
 trips."routeId",
 trips.date::text,
-trips.status is not null and trips.status = 'cancelled' as cancelled,
+trips.status IS NOT NULL and trips.status = 'cancelled' as cancelled,
 routes."transportCompanyId",
 routes.label,
 routes.from,
@@ -48,6 +48,8 @@ routes.tags && array['notify-when-empty'::varchar] as "notifyWhenEmpty"
 FROM trips
 INNER JOIN routes ON routes.id = trips."routeId"
 WHERE trips.date = $1
+AND routes."transportCompanyId" IS NOT NULL
+AND NOT (routes.tags && array['crowdstart'::varchar])
 `
 
 /**
