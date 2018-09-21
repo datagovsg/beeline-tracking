@@ -29,7 +29,10 @@ FROM
 LEFT OUTER JOIN tickets ON tickets.status = 'valid' AND (tickets."boardStopId" = ts.id OR tickets."alightStopId" = ts.id)
 INNER JOIN stops ON stops.id = ts."stopId"
 INNER JOIN trips ON trips.id = ts."tripId"
+INNER JOIN routes ON trips."routeId" = routes.id
 WHERE date = $1
+AND routes."transportCompanyId" IS NOT NULL
+AND NOT (routes.tags && array['crowdstart'::varchar])
 GROUP BY trips.id, stops.id, ts.id
 ORDER BY "tripId", time
 `
