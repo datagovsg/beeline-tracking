@@ -1,25 +1,25 @@
-const AWS = require("aws-sdk")
-const moment = require("moment-timezone")
-const fcsv = require("fast-csv")
-const _ = require("lodash")
+const AWS = require('aws-sdk')
+const moment = require('moment-timezone')
+const fcsv = require('fast-csv')
+const _ = require('lodash')
 
-const auth = require("./utils/auth")
-const { callbackWithFactory } = require("./utils/callback-helpers")
+const auth = require('./utils/auth')
+const { callbackWithFactory } = require('./utils/callback-helpers')
 
-const sgMoment = date => moment.tz(date, "Asia/Singapore")
+const sgMoment = date => moment.tz(date, 'Asia/Singapore')
 const makeSGTimestampString = date =>
   date ? sgMoment(date).toISOString(true) : date
-const makeSGDate = date => sgMoment(date).format("YYYY-MM-DD")
+const makeSGDate = date => sgMoment(date).format('YYYY-MM-DD')
 
-const lookupTransportCompanyIds = function lookupTransportCompanyIds(headers) {
+const lookupTransportCompanyIds = function lookupTransportCompanyIds (headers) {
   return auth
     .lookupEntitlements(headers)
     .then(credentials =>
-      auth.getCompaniesByRole(credentials, "monitor-operations")
+      auth.getCompaniesByRole(credentials, 'monitor-operations')
     )
 }
 
-const lookup = function lookup(dynamoDb, query) {
+const lookup = function lookup (dynamoDb, query) {
   return dynamoDb
     .query(query)
     .promise()
@@ -30,7 +30,7 @@ const lookup = function lookup(dynamoDb, query) {
     })
 }
 
-const csvFrom = function csvFrom(data, columnNames, dataToRows) {
+const csvFrom = function csvFrom (data, columnNames, dataToRows) {
   const rows = _(data)
     .map(dataToRows)
     .flatten()
@@ -69,32 +69,32 @@ const makePerformance = dynamoDb => (event, context, callback) => {
 
   const performanceByDateQuery = {
     ExpressionAttributeValues: {
-      ":v1": Number(routeId),
-      ":d1": fromDate,
-      ":d2": toDate,
+      ':v1': Number(routeId),
+      ':d1': fromDate,
+      ':d2': toDate,
     },
     ExpressionAttributeNames: {
-      "#date": "date",
+      '#date': 'date',
     },
-    KeyConditionExpression: "routeId = :v1 AND #date BETWEEN :d1 AND :d2",
+    KeyConditionExpression: 'routeId = :v1 AND #date BETWEEN :d1 AND :d2',
     TableName: process.env.PERFORMANCE_TABLE,
     ScanIndexForward: false,
   }
 
   const columnNames = [
-    "routeId",
-    "date",
-    "label",
-    "stopId",
-    "description",
-    "road",
-    "canBoard",
-    "canAlight",
-    "pax",
-    "expectedTime",
-    "actualTime",
-    "actualLocation",
-    "timeDifferenceMinutes",
+    'routeId',
+    'date',
+    'label',
+    'stopId',
+    'description',
+    'road',
+    'canBoard',
+    'canAlight',
+    'pax',
+    'expectedTime',
+    'actualTime',
+    'actualLocation',
+    'timeDifferenceMinutes',
   ]
 
   const dataToRows = d =>
@@ -112,14 +112,14 @@ const makePerformance = dynamoDb => (event, context, callback) => {
       makeSGTimestampString(s.actualTime),
       s.actualLocation,
       s.actualTime
-        ? moment(s.actualTime).diff(s.expectedTime, "minutes")
+        ? moment(s.actualTime).diff(s.expectedTime, 'minutes')
         : null,
     ])
 
   const filename = `${routeId} - ${fromDate} to ${toDate}.csv`
   const csvHeaders = {
-    "Content-Type": "text/csv",
-    "Content-Disposition": `attachment; filename="${filename}"`,
+    'Content-Type': 'text/csv',
+    'Content-Disposition': `attachment; filename="${filename}"`,
   }
 
   return Promise.all([
@@ -130,7 +130,7 @@ const makePerformance = dynamoDb => (event, context, callback) => {
       const data = performance.filter(p =>
         transportCompanyIds.includes(p.transportCompanyId)
       )
-      return format === "csv"
+      return format === 'csv'
         ? Promise.all([csvFrom(data, columnNames, dataToRows), csvHeaders])
         : Promise.resolve([data, undefined])
     })
@@ -147,25 +147,25 @@ const makeEvents = dynamoDb => (event, context, callback) => {
 
   const eventsByDateQuery = {
     ExpressionAttributeValues: {
-      ":v1": key,
+      ':v1': key,
     },
-    KeyConditionExpression: "dateRoute = :v1",
+    KeyConditionExpression: 'dateRoute = :v1',
     TableName: process.env.EVENTS_TABLE,
     ScanIndexForward: false,
   }
 
   const columnNames = [
-    "routeId",
-    "date",
-    "label",
-    "time",
-    "type",
-    "severity",
-    "delayInMins",
-    "message",
+    'routeId',
+    'date',
+    'label',
+    'time',
+    'type',
+    'severity',
+    'delayInMins',
+    'message',
   ]
   const dataToRows = d => {
-    const [date, routeId] = d.dateRoute.split("|")
+    const [date, routeId] = d.dateRoute.split('|')
     return [
       [
         routeId,
@@ -181,8 +181,8 @@ const makeEvents = dynamoDb => (event, context, callback) => {
   }
 
   const csvHeaders = {
-    "Content-Type": "text/csv",
-    "Content-Disposition": `attachment; filename="${routeId} - ${date}.csv"`,
+    'Content-Type': 'text/csv',
+    'Content-Disposition': `attachment; filename="${routeId} - ${date}.csv"`,
   }
 
   return Promise.all([
@@ -195,7 +195,7 @@ const makeEvents = dynamoDb => (event, context, callback) => {
           transportCompanyIds.includes(e.trip.route.transportCompanyId) &&
           Number(e.severity) > 0
       )
-      return format === "csv"
+      return format === 'csv'
         ? Promise.all([csvFrom(data, columnNames, dataToRows), csvHeaders])
         : Promise.resolve([data, undefined])
     })
@@ -207,18 +207,18 @@ const makeStatus = dynamoDb => (event, context, callback) => {
   const callbackWith = callbackWithFactory(callback)
   const { headers } = event
   const time = sgMoment(new Date())
-    .startOf("date")
+    .startOf('date')
     .valueOf()
 
   const queryStatusBy = transportCompanyId => ({
     ExpressionAttributeNames: {
-      "#time": "time",
+      '#time': 'time',
     },
     ExpressionAttributeValues: {
-      ":v1": transportCompanyId,
-      ":v2": time,
+      ':v1': transportCompanyId,
+      ':v2': time,
     },
-    KeyConditionExpression: "transportCompanyId = :v1 AND #time >= :v2",
+    KeyConditionExpression: 'transportCompanyId = :v1 AND #time >= :v2',
     TableName: process.env.MONITORING_TABLE,
     ScanIndexForward: false,
     Limit: 1,

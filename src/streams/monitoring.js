@@ -1,8 +1,8 @@
-const _ = require("lodash")
-const AWS = require("aws-sdk")
-const df = require("dateformat")
-const moment = require("moment-timezone")
-const TelegramBot = require("node-telegram-bot-api")
+const _ = require('lodash')
+const AWS = require('aws-sdk')
+const df = require('dateformat')
+const moment = require('moment-timezone')
+const TelegramBot = require('node-telegram-bot-api')
 
 const loadEventSubscriptions = dynamoDb => transportCompanyId => {
   return new Promise((resolve, reject) => {
@@ -28,7 +28,7 @@ const EVENT_TO_PAYLOAD = {
       `${event.trip.M.route.M.label.S} ` +
       `${event.trip.M.route.M.from.S} to ${event.trip.M.route.M.to.S} (on ${df(
         event.trip.M.date.S,
-        "d mmm yyyy"
+        'd mmm yyyy'
       )})`,
     severity: Number(event.delayInMins.N) <= 5 ? 5 : 4,
   }),
@@ -39,7 +39,7 @@ const EVENT_TO_PAYLOAD = {
       } ` +
       `${event.trip.M.route.M.from.S} to ${event.trip.M.route.M.to.S} (${df(
         event.trip.M.date.S,
-        "d mmm yyyy"
+        'd mmm yyyy'
       )})`,
   }),
   lateETA: event => ({
@@ -49,7 +49,7 @@ const EVENT_TO_PAYLOAD = {
       } ` +
       `${event.trip.M.route.M.from.S} to ${event.trip.M.route.M.to.S} (${df(
         event.trip.M.date.S,
-        "d mmm yyyy"
+        'd mmm yyyy'
       )})`,
   }),
 }
@@ -57,8 +57,8 @@ const EVENT_TO_PAYLOAD = {
 const isPublishNoPings = record => {
   const { OldImage, NewImage } = record.dynamodb
   const publish =
-    record.eventName === "MODIFY" &&
-    NewImage.type.S === "noPings" &&
+    record.eventName === 'MODIFY' &&
+    NewImage.type.S === 'noPings' &&
     Number(NewImage.time.N) - Number(OldImage.time.N) > 60 * 60 * 1000 &&
     NewImage.activeTrip &&
     NewImage.activeTrip.BOOL
@@ -77,12 +77,12 @@ const sendToTelegram = (bot, payload) => subscriber => {
   const { agent: { notes: { telegramChatId } } } = subscriber
   let criticality =
     payload.severity && payload.severity >= 6
-      ? "EMERGNCY"
-      : payload.severity && payload.severity >= 5 ? "CRITICAL" : "OPS"
+      ? 'EMERGNCY'
+      : payload.severity && payload.severity >= 5 ? 'CRITICAL' : 'OPS'
 
   const message = `[${criticality}] ${payload.message} Sent: ${moment
-    .tz(new Date(), "Asia/Singapore")
-    .format("HH:mm:ss")}`
+    .tz(new Date(), 'Asia/Singapore')
+    .format('HH:mm:ss')}`
   console.log(`Sending ${telegramChatId} - ${message}`)
   return bot.sendMessage(telegramChatId, message)
 }
@@ -93,13 +93,13 @@ const makePublish = (lookupEventSubscriptions, bot) => (
   callback
 ) => {
   const eventsToPublish = event.Records.filter(
-    record => record.eventName === "INSERT" || isPublishNoPings(record)
+    record => record.eventName === 'INSERT' || isPublishNoPings(record)
   )
     .map(record => record.dynamodb.NewImage)
     .filter(
       event =>
         event.trip.M.date.S ===
-        moment.tz(new Date(), "Asia/Singapore").format("YYYY-MM-DD")
+        moment.tz(new Date(), 'Asia/Singapore').format('YYYY-MM-DD')
     )
 
   const transportCompanyIds = eventsToPublish.map(event =>
@@ -112,7 +112,7 @@ const makePublish = (lookupEventSubscriptions, bot) => (
       const publishPromises = eventsToPublish.map(event => {
         const routeId = Number(event.trip.M.routeId.N)
         const type = event.type.S
-        const delayInMins = ["noPings", "lateETA", "lateArrival"].includes(type)
+        const delayInMins = ['noPings', 'lateETA', 'lateArrival'].includes(type)
           ? Number(event.delayInMins.N)
           : undefined
         const transportCompanyId = Number(
@@ -130,14 +130,14 @@ const makePublish = (lookupEventSubscriptions, bot) => (
         )
         const subscribersByHandler = _.groupBy(
           relevantSubscribers || [],
-          "handler"
+          'handler'
         )
-        console.warn("WARN: Only handling telegram subscribers")
+        console.warn('WARN: Only handling telegram subscribers')
         const telegramSubscribers = subscribersByHandler.telegram
         if (
           telegramSubscribers &&
           telegramSubscribers.length &&
-          typeof EVENT_TO_PAYLOAD[type] === "function"
+          typeof EVENT_TO_PAYLOAD[type] === 'function'
         ) {
           const payload = EVENT_TO_PAYLOAD[type](event)
           return Promise.all(
@@ -149,7 +149,7 @@ const makePublish = (lookupEventSubscriptions, bot) => (
       })
       return Promise.all(publishPromises)
     })
-    .then(() => callback(null, { message: "Done" }))
+    .then(() => callback(null, { message: 'Done' }))
     .catch(err => callback(null, err))
 }
 

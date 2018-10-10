@@ -1,4 +1,4 @@
-const { batchWrite } = require("../../utils/dynamodb-load")
+const { batchWrite } = require('../../utils/dynamodb-load')
 
 module.exports = (dynamoDb, payloads) => {
   const [performance, monitoring, events] = payloads

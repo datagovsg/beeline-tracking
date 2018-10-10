@@ -1,6 +1,6 @@
-const _ = require("lodash")
+const _ = require('lodash')
 
-const events = require("./events")
+const events = require('./events')
 
 const GEOFENCE_RADIUS = 120
 
@@ -13,10 +13,10 @@ const trigDistance = (a, b) => {
 const filterRecentNoPings = (dynamoDb, events) => {
   const [noPingsEvents, otherEvents] = _.partition(
     events,
-    e => e.type === "noPings"
+    e => e.type === 'noPings'
   )
   const keyParamsArray = noPingsEvents.map(e =>
-    _.pick(e, ["dateRoute", "alertId"])
+    _.pick(e, ['dateRoute', 'alertId'])
   )
   const previousNoPingsEventsPromise = Promise.all(
     keyParamsArray.map(
@@ -57,7 +57,7 @@ const filterRecentNoPings = (dynamoDb, events) => {
  * @param {Object} infoByRouteId - a collection of ping-annotated trip stops keyed by routeId
  * @return {Array} payloads for export into various DynamoDB tables
  */
-function createExportPayloads({ infoByRouteId, time }) {
+function createExportPayloads ({ infoByRouteId, time }) {
   const performance = _(infoByRouteId)
     .values()
     .map(info => ({
@@ -95,9 +95,9 @@ function createExportPayloads({ infoByRouteId, time }) {
       infoByCompanyId[transportCompanyId] = companyInfo
     }
     const monitoringInfo = _(info)
-      .omit(["events", "trip.tripStops"])
+      .omit(['events', 'trip.tripStops'])
       .set(
-        "trip.startTime",
+        'trip.startTime',
         _.minBy(info.trip.tripStops.map(s => s.time), t =>
           t.getTime()
         ).toISOString()
@@ -146,7 +146,7 @@ function createExportPayloads({ infoByRouteId, time }) {
  *   - time is the epoch when this was processed, and;
  *   - infoByRouteId would have been further annotated as described
  */
-function injectArrivalStatus(infoByRouteId) {
+function injectArrivalStatus (infoByRouteId) {
   const time = Date.now()
   _.forEach(infoByRouteId, (info, routeId) => {
     const { trip, notifyWhenEmpty, lastPing } = info
@@ -181,7 +181,7 @@ function injectArrivalStatus(infoByRouteId) {
 
     // Compute ETAs
     const speed = 35 // km/h
-    const computeETA = function(c1, c2) {
+    const computeETA = function (c1, c2) {
       if (!c1 || !c2) return null
       let distance = trigDistance(c1, c2)
       return time + distance / 1000 / speed * 3600 * 1000
@@ -204,7 +204,7 @@ function injectArrivalStatus(infoByRouteId) {
     })
     info.status = {
       arrivalTime: isArrivedAtPrevStop && prevStop.bestPing.time,
-      emergency: trip.status === "cancelled",
+      emergency: trip.status === 'cancelled',
       eta: nextStopRelevant
         ? nextStopETA && new Date(nextStopETA)
         : prevStopRelevant ? prevStopETA && new Date(prevStopETA) : null,
@@ -227,7 +227,7 @@ function injectArrivalStatus(infoByRouteId) {
  * @param {Object} pingsByRouteId - a collection of pings keyed by routeId
  * @return {Object} infoByRouteId, with information from pingsByRouteId
  */
-function injectArrivalHistory([infoByRouteId, pingsByRouteId]) {
+function injectArrivalHistory ([infoByRouteId, pingsByRouteId]) {
   _.forEach(infoByRouteId, (info, routeId) => {
     const pings = pingsByRouteId[routeId]
     for (const stop of info.trip.tripStops) {
@@ -243,7 +243,7 @@ function injectArrivalHistory([infoByRouteId, pingsByRouteId]) {
         stop.bestPing && trigDistance(stop.bestPing._xy, stop._xy)
     }
 
-    info.lastPing = _.maxBy(pings, "time")
+    info.lastPing = _.maxBy(pings, 'time')
   })
   return infoByRouteId
 }

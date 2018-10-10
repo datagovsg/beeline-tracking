@@ -1,9 +1,8 @@
 const sinon = require('sinon')
 const geohash = require('ngeohash')
-const {expect} = require('chai')
+const { expect } = require('chai')
 
-const {makeGET} = require('../src/latest')
-
+const { makeGET } = require('../src/latest')
 
 describe('handler for GETing pings', () => {
   const mockDynamoClient = (errorOnQuery, dataOnQuery) => ({
@@ -17,18 +16,18 @@ describe('handler for GETing pings', () => {
     location: geohash.encode(1.08, 103.56, 15),
   }
 
-  const {latitude, longitude} = geohash.decode(ping.location)
+  const { latitude, longitude } = geohash.decode(ping.location)
   const coordinates = {
     type: 'Point',
     coordinates: [longitude, latitude],
   }
 
   const event = {
-    pathParameters: {tripId: ping.tripId},
+    pathParameters: { tripId: ping.tripId },
   }
 
   it('returns 500 on error', () => {
-    const error = {message: 'fail'}
+    const error = { message: 'fail' }
     const callback = sinon.spy()
     const handler = makeGET(mockDynamoClient(error))
     handler(event, undefined, callback)
@@ -37,26 +36,26 @@ describe('handler for GETing pings', () => {
     const [, response] = callback.firstCall.args
     expect(response.statusCode).equal(500)
 
-    const {error:body} = JSON.parse(response.body)
+    const { error: body } = JSON.parse(response.body)
     expect(body).deep.equal(error)
   })
 
   it('returns 404 on not found', () => {
     const callback = sinon.spy()
-    const handler = makeGET(mockDynamoClient(undefined, {Items: []}))
+    const handler = makeGET(mockDynamoClient(undefined, { Items: [] }))
     handler(event, undefined, callback)
     expect(callback.calledOnce).to.be.true
 
     const [, response] = callback.firstCall.args
     expect(response.statusCode).equal(404)
 
-    const {error} = JSON.parse(response.body)
+    const { error } = JSON.parse(response.body)
     expect(error).equal('Not Found')
   })
 
   it('returns 200 on hit', () => {
     const callback = sinon.spy()
-    const handler = makeGET(mockDynamoClient(undefined, {Items: [ping]}))
+    const handler = makeGET(mockDynamoClient(undefined, { Items: [ping] }))
     handler(event, undefined, callback)
     expect(callback.calledOnce).to.be.true
 
@@ -64,6 +63,6 @@ describe('handler for GETing pings', () => {
     expect(response.statusCode).equal(200)
 
     const body = JSON.parse(response.body)
-    expect(body).deep.equal(Object.assign(ping, {coordinates}))
+    expect(body).deep.equal(Object.assign(ping, { coordinates }))
   })
 })

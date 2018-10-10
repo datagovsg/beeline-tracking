@@ -1,7 +1,7 @@
-const AWS = require("aws-sdk")
-const axios = require("axios")
-const jwt = require("jsonwebtoken")
-const { callbackWithFactory } = require("./utils/callback-helpers")
+const AWS = require('aws-sdk')
+const axios = require('axios')
+const jwt = require('jsonwebtoken')
+const { callbackWithFactory } = require('./utils/callback-helpers')
 
 const makePUT = dynamoDb => (event, context, callback) => {
   const callbackWith = callbackWithFactory(callback)
@@ -14,7 +14,7 @@ const makePUT = dynamoDb => (event, context, callback) => {
       headers: { Authorization },
     })
     .then(response => {
-      const [, token] = (Authorization || "").split(" ")
+      const [, token] = (Authorization || '').split(' ')
       const credentials = jwt.verify(token, process.env.AUTH0_SECRET)
       const { driverId } = credentials
       const time = Date.now()

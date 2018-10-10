@@ -1,11 +1,10 @@
 {
   "extends": [
-    "eslint:recommended",
-    "google",
-    "prettier"
+    "@opengovsg/eslint-config-opengovsg"
   ],
   "plugins": [
-    "mocha"
+    "mocha",
+    "chai-friendly"
   ],
   "env": {
     "node": true,
@@ -13,11 +12,8 @@
     "mocha": true
   },
   "rules": {
-    "no-unused-vars": ["error"],
-    "semi": ["error", "never"],
-    "comma-dangle": ["error", "always-multiline"],
-    "radix": ["error", "as-needed"],
-    "require-jsdoc": ["warn"],
-    "no-console": ["off", {"allow": ["warn", "error"]}]
+    "no-console": ["off", {"allow": ["warn", "error"]}],
+    "no-unused-expressions": 0,
+    "chai-friendly/no-unused-expressions": 2
   }
 }

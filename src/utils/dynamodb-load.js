@@ -1,4 +1,4 @@
-const { flatten } = require("lodash")
+const { flatten } = require('lodash')
 
 const BATCH_SIZE = 25
 

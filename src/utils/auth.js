@@ -1,5 +1,5 @@
-const _ = require("lodash")
-const axios = require("axios")
+const _ = require('lodash')
+const axios = require('axios')
 
 /**
  * Call the `/admins/whoami` endpoint at `API_URL` to figure out
@@ -7,7 +7,7 @@ const axios = require("axios")
  * @param {Object} headers - the headers containing the JSON web token received from the admin
  * @return {Promise<Object>} the credentials returned by the endpoint
  */
-function lookupEntitlements(headers) {
+function lookupEntitlements (headers) {
   const Authorization = headers.authorization || headers.Authorization
   return axios
     .get(
@@ -23,7 +23,7 @@ function lookupEntitlements(headers) {
  * @return {Array<Number>} List of company IDs for which this `credentials`
  * has permissions to a particular `role`
  */
-function getCompaniesByRole(credentials, role) {
+function getCompaniesByRole (credentials, role) {
   if (!credentials.permissions) {
     return []
   }

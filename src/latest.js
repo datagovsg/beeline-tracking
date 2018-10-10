@@ -1,8 +1,8 @@
-const AWS = require("aws-sdk")
-const geohash = require("ngeohash")
+const AWS = require('aws-sdk')
+const geohash = require('ngeohash')
 
-const validate = require("./utils/validate")
-const { callbackWithFactory } = require("./utils/callback-helpers")
+const validate = require('./utils/validate')
+const { callbackWithFactory } = require('./utils/callback-helpers')
 
 const makePOST = dynamoDb => (event, context, callback) => {
   const callbackWith = callbackWithFactory(callback)
@@ -46,9 +46,9 @@ const makeGET = dynamoDb => (event, context, callback) => {
   const tripId = Number(event.pathParameters.tripId)
   const params = {
     ExpressionAttributeValues: {
-      ":v1": tripId,
+      ':v1': tripId,
     },
-    KeyConditionExpression: "tripId = :v1",
+    KeyConditionExpression: 'tripId = :v1',
     TableName: process.env.TRACKING_TABLE,
     ScanIndexForward: false,
     Limit: 1,
@@ -62,11 +62,11 @@ const makeGET = dynamoDb => (event, context, callback) => {
     } else {
       const [body] = data.Items || []
       if (!body) {
-        callbackWith(404, { error: "Not Found" })
+        callbackWith(404, { error: 'Not Found' })
       } else {
         const { latitude, longitude } = geohash.decode(body.location)
         const coordinates = {
-          type: "Point",
+          type: 'Point',
           coordinates: [longitude, latitude],
         }
         Object.assign(body, { coordinates })
