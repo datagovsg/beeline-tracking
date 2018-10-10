@@ -1,10 +1,10 @@
-const { expect } = require("chai")
-const sinon = require("sinon")
+const { expect } = require('chai')
+const sinon = require('sinon')
 
-const auth = require("../src/utils/auth")
-const { makeStatus } = require("../src/monitoring")
+const auth = require('../src/utils/auth')
+const { makeStatus } = require('../src/monitoring')
 
-describe("Retrieving monitoring status", () => {
+describe('Retrieving monitoring status', () => {
   const mockQueryPromise = sinon.stub()
   const mockDynamoDb = {
     query: () => ({ promise: mockQueryPromise }),
@@ -13,8 +13,8 @@ describe("Retrieving monitoring status", () => {
   const event = {}
 
   beforeEach(() => {
-    sinon.stub(auth, "lookupEntitlements")
-    sinon.stub(auth, "getCompaniesByRole")
+    sinon.stub(auth, 'lookupEntitlements')
+    sinon.stub(auth, 'getCompaniesByRole')
   })
 
   afterEach(() => {
@@ -23,10 +23,10 @@ describe("Retrieving monitoring status", () => {
     mockQueryPromise.reset()
   })
 
-  it("should 500 on lookupEntitlements fail", done => {
+  it('should 500 on lookupEntitlements fail', done => {
     const callback = sinon.spy()
     const data = { statusCode: 504 }
-    auth.lookupEntitlements.rejects({ response: { data }})
+    auth.lookupEntitlements.rejects({ response: { data } })
     handler(event, undefined, callback)
       .then(() => {
         expect(callback.calledOnce).to.be.true
@@ -37,7 +37,7 @@ describe("Retrieving monitoring status", () => {
       .catch(done)
   })
 
-  it("should skip dynamoDb on lookupEntitlements empty", done => {
+  it('should skip dynamoDb on lookupEntitlements empty', done => {
     const callback = sinon.spy()
     auth.lookupEntitlements.resolves()
     auth.getCompaniesByRole.resolves([])
@@ -53,7 +53,7 @@ describe("Retrieving monitoring status", () => {
       .catch(done)
   })
 
-  it("should continue even when dynamoDb throws on some queries", done => {
+  it('should continue even when dynamoDb throws on some queries', done => {
     const callback = sinon.spy()
     auth.lookupEntitlements.resolves()
     auth.getCompaniesByRole.resolves([1, 2])
@@ -71,7 +71,7 @@ describe("Retrieving monitoring status", () => {
       .catch(done)
   })
 
-  it("should merge data across multiple transport companies", done => {
+  it('should merge data across multiple transport companies', done => {
     const callback = sinon.spy()
     auth.lookupEntitlements.resolves()
     auth.getCompaniesByRole.resolves([1, 2])

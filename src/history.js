@@ -1,7 +1,7 @@
-const AWS = require("aws-sdk")
-const geohash = require("ngeohash")
+const AWS = require('aws-sdk')
+const geohash = require('ngeohash')
 
-const { callbackWithFactory } = require("./utils/callback-helpers")
+const { callbackWithFactory } = require('./utils/callback-helpers')
 
 const addQueryStringParameters = (params, { limit, from, to }) => {
   const validNumber = x => x && Number(x) > 0
@@ -10,18 +10,18 @@ const addQueryStringParameters = (params, { limit, from, to }) => {
   }
   if (validNumber(from) && validNumber(to)) {
     params.KeyConditionExpression =
-      "tripId = :v1 and #time BETWEEN :from AND :to"
-    params.ExpressionAttributeNames = { "#time": "time" }
-    params.ExpressionAttributeValues[":from"] = Number(from)
-    params.ExpressionAttributeValues[":to"] = Number(to)
+      'tripId = :v1 and #time BETWEEN :from AND :to'
+    params.ExpressionAttributeNames = { '#time': 'time' }
+    params.ExpressionAttributeValues[':from'] = Number(from)
+    params.ExpressionAttributeValues[':to'] = Number(to)
   } else if (validNumber(from)) {
-    params.KeyConditionExpression = "tripId = :v1 and #time >= :from"
-    params.ExpressionAttributeNames = { "#time": "time" }
-    params.ExpressionAttributeValues[":from"] = Number(from)
+    params.KeyConditionExpression = 'tripId = :v1 and #time >= :from'
+    params.ExpressionAttributeNames = { '#time': 'time' }
+    params.ExpressionAttributeValues[':from'] = Number(from)
   } else if (validNumber(to)) {
-    params.KeyConditionExpression = "tripId = :v1 and #time <= :to"
-    params.ExpressionAttributeNames = { "#time": "time" }
-    params.ExpressionAttributeValues[":to"] = Number(to)
+    params.KeyConditionExpression = 'tripId = :v1 and #time <= :to'
+    params.ExpressionAttributeNames = { '#time': 'time' }
+    params.ExpressionAttributeValues[':to'] = Number(to)
   }
 }
 
@@ -31,9 +31,9 @@ const makeGET = dynamoDb => (event, context, callback) => {
   const tripId = Number(event.pathParameters.tripId)
   const params = {
     ExpressionAttributeValues: {
-      ":v1": tripId,
+      ':v1': tripId,
     },
-    KeyConditionExpression: "tripId = :v1",
+    KeyConditionExpression: 'tripId = :v1',
     TableName: process.env.TRACKING_TABLE,
     ScanIndexForward: false,
   }
@@ -46,7 +46,7 @@ const makeGET = dynamoDb => (event, context, callback) => {
       const body = (data.Items || []).map(p => {
         const { latitude, longitude } = geohash.decode(p.location)
         const coordinates = {
-          type: "Point",
+          type: 'Point',
           coordinates: [longitude, latitude],
         }
         return Object.assign(p, { coordinates })

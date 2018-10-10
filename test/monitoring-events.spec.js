@@ -1,11 +1,11 @@
-const { expect } = require("chai")
-const sinon = require("sinon")
-const moment = require("moment-timezone")
+const { expect } = require('chai')
+const sinon = require('sinon')
+const moment = require('moment-timezone')
 
-const auth = require("../src/utils/auth")
-const { makeEvents } = require("../src/monitoring")
+const auth = require('../src/utils/auth')
+const { makeEvents } = require('../src/monitoring')
 
-describe("Retrieving monitoring events", () => {
+describe('Retrieving monitoring events', () => {
   const mockQueryPromise = sinon.stub()
   const mockDynamoDb = {
     query: () => ({ promise: mockQueryPromise }),
@@ -18,8 +18,8 @@ describe("Retrieving monitoring events", () => {
   }
 
   beforeEach(() => {
-    sinon.stub(auth, "lookupEntitlements")
-    sinon.stub(auth, "getCompaniesByRole")
+    sinon.stub(auth, 'lookupEntitlements')
+    sinon.stub(auth, 'getCompaniesByRole')
   })
 
   afterEach(() => {
@@ -28,7 +28,7 @@ describe("Retrieving monitoring events", () => {
     mockQueryPromise.reset()
   })
 
-  it("should 500 on lookupEntitlements fail", done => {
+  it('should 500 on lookupEntitlements fail', done => {
     const callback = sinon.spy()
     const data = { statusCode: 504 }
     auth.lookupEntitlements.rejects({ response: { data } })
@@ -43,11 +43,11 @@ describe("Retrieving monitoring events", () => {
       .catch(done)
   })
 
-  it("should return nothing on lookupEntitlements empty", done => {
+  it('should return nothing on lookupEntitlements empty', done => {
     const callback = sinon.spy()
     auth.lookupEntitlements.resolves()
     auth.getCompaniesByRole.resolves([])
-    const monitoringEvent =  { trip: { route: { transportCompanyId: 2 } }  }
+    const monitoringEvent = { trip: { route: { transportCompanyId: 2 } } }
     mockQueryPromise.resolves({ Items: [ monitoringEvent ] })
     handler(event, undefined, callback)
       .then(() => {
@@ -59,11 +59,11 @@ describe("Retrieving monitoring events", () => {
       .catch(done)
   })
 
-  it("should return nothing on mismatched transport companies", done => {
+  it('should return nothing on mismatched transport companies', done => {
     const callback = sinon.spy()
     auth.lookupEntitlements.resolves()
     auth.getCompaniesByRole.resolves([1])
-    const monitoringEvent =  { trip: { route: { transportCompanyId: 2 } }  }
+    const monitoringEvent = { trip: { route: { transportCompanyId: 2 } } }
     mockQueryPromise.resolves({ Items: [ monitoringEvent ] })
     handler(event, undefined, callback)
       .then(() => {
@@ -75,12 +75,12 @@ describe("Retrieving monitoring events", () => {
       .catch(done)
   })
 
-  it("should retrieve JSON data", done => {
+  it('should retrieve JSON data', done => {
     const callback = sinon.spy()
     auth.lookupEntitlements.resolves()
     auth.getCompaniesByRole.resolves([1, 2])
 
-    const monitoringEvent =  {
+    const monitoringEvent = {
       trip: { route: { transportCompanyId: 1 } },
       severity: 1,
     }
@@ -96,7 +96,7 @@ describe("Retrieving monitoring events", () => {
       .catch(done)
   })
 
-  it("should retrieve CSV data", done => {
+  it('should retrieve CSV data', done => {
     const date = new Date()
     const { routeId } = event.pathParameters
 
@@ -104,37 +104,37 @@ describe("Retrieving monitoring events", () => {
     auth.lookupEntitlements.resolves()
     auth.getCompaniesByRole.resolves([1, 2])
     const routeData = {
-      dateRoute: `${moment.tz(date, "Asia/Singapore").format("YYYY-MM-DD")}|${routeId}`,
+      dateRoute: `${moment.tz(date, 'Asia/Singapore').format('YYYY-MM-DD')}|${routeId}`,
       trip: {
         route: {
-          label: "B99",
+          label: 'B99',
           transportCompanyId: 1,
         },
       },
       time: date.getTime(),
-      type: "noPings",
+      type: 'noPings',
       severity: 3,
       delayInMins: 4,
-      message: "bnbnm",
+      message: 'bnbnm',
     }
     mockQueryPromise.resolves({ Items: [ routeData ] })
-    event.queryStringParameters.format = "csv"
+    event.queryStringParameters.format = 'csv'
     handler(event, undefined, callback)
       .then(() => {
         expect(callback.calledOnce).to.be.true
         const [, response] = callback.firstCall.args
         expect(response.body).equal(
-          "routeId,date,label,time,type,severity,delayInMins,message\n" +
+          'routeId,date,label,time,type,severity,delayInMins,message\n' +
           [
             routeId,
-            moment.tz(date, "Asia/Singapore").format("YYYY-MM-DD"),
+            moment.tz(date, 'Asia/Singapore').format('YYYY-MM-DD'),
             routeData.trip.route.label,
-            moment.tz(routeData.time, "Asia/Singapore").toISOString(true),
+            moment.tz(routeData.time, 'Asia/Singapore').toISOString(true),
             routeData.type,
             routeData.severity,
             routeData.delayInMins,
             routeData.message,
-          ].join(",")
+          ].join(',')
         )
         done()
       })

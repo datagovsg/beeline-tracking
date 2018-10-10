@@ -19,15 +19,19 @@
     "proj4": "^2.4.4"
   },
   "devDependencies": {
+    "@opengovsg/eslint-config-opengovsg": "^1.0.5",
     "chai": "^4.1.2",
-    "eslint": "^4.11.0",
-    "eslint-config-google": "^0.9.1",
-    "eslint-config-prettier": "^2.9.0",
-    "eslint-plugin-mocha": "^4.11.0",
+    "eslint": "^5.6.1",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-chai-friendly": "^0.4.1",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-mocha": "^5.2.0",
+    "eslint-plugin-node": "^7.0.1",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
     "mocha": "^4.0.1",
     "moxios": "^0.4.0",
     "pre-commit": "^1.2.2",
-    "prettier": "1.8.2",
     "serverless": "^1.29.1",
     "serverless-dynamodb-autoscaling": "^0.6.2",
     "shelljs": "^0.7.8",
@@ -38,12 +42,9 @@
     "unit": "mocha --exit",
     "test": "npm run unit",
     "staging": "serverless deploy",
-    "lint": "node scripts/lint.js",
-    "moxios": "^0.4.0",
-    "prettier": "node scripts/prettier.js",
-    "prettier-lint": "git fetch && npm run prettier && npm run lint"
+    "lint": "eslint --fix ."
   },
   "pre-commit": [
-    "prettier-lint"
+    "lint"
   ]
 }

@@ -1,16 +1,16 @@
-const geohash = require("ngeohash")
-const _ = require("lodash")
+const geohash = require('ngeohash')
+const _ = require('lodash')
 
-const proj4 = require("proj4")
+const proj4 = require('proj4')
 
 proj4.defs([
   [
-    "epsg:3414",
-    "+proj=tmerc +lat_0=1.366666666666667 +lon_0=103.8333333333333 +k=1 +x_0=28001.642 +y_0=38744.572 +ellps=WGS84 +units=m +no_defs ",
+    'epsg:3414',
+    '+proj=tmerc +lat_0=1.366666666666667 +lon_0=103.8333333333333 +k=1 +x_0=28001.642 +y_0=38744.572 +ellps=WGS84 +units=m +no_defs ',
   ],
 ])
 
-const toSVY = proj4("epsg:3414").forward
+const toSVY = proj4('epsg:3414').forward
 
 const STOPS_QUERY = `
 SELECT
@@ -64,10 +64,10 @@ AND NOT (routes.tags && array['crowdstart'::varchar])
  *   - _xy - cartesian coordinates on the SVY21 plane
  *   - time - `ping.time` converted from epoch to Date
  */
-function injectGeoInfo(ping) {
+function injectGeoInfo (ping) {
   const { latitude, longitude } = geohash.decode(ping.location)
   ping.coordinates = {
-    type: "Point",
+    type: 'Point',
     coordinates: [longitude, latitude],
   }
   ping._xy = toSVY(ping.coordinates.coordinates)
@@ -81,12 +81,12 @@ function injectGeoInfo(ping) {
  * @param {Number} tripId - the trip id to look up pings for
  * @return {Promise} the pings retrieved from DynamoDB
  */
-function pings(dynamoDb, tripId) {
+function pings (dynamoDb, tripId) {
   return new Promise((resolve, reject) => {
     const params = {
-      KeyConditionExpression: "tripId = :v1",
+      KeyConditionExpression: 'tripId = :v1',
       TableName: process.env.TRACKING_TABLE,
-      ExpressionAttributeValues: { ":v1": tripId },
+      ExpressionAttributeValues: { ':v1': tripId },
     }
     dynamoDb.query(params, (error, data) => {
       if (error) {
@@ -104,7 +104,7 @@ function pings(dynamoDb, tripId) {
  * @param {Array} routes - An array of routes
  * @return {Promise} a collection of trip pings keyed by route id
  */
-function collectPings(dynamoDb, routes) {
+function collectPings (dynamoDb, routes) {
   const result = {}
   return Promise.all(
     routes.map(({ routeId, tripId }) =>
@@ -120,7 +120,7 @@ function collectPings(dynamoDb, routes) {
  * @return {Object} a collection of route information and associated stops,
  * keyed by route id
  */
-function injectStopsWithRouteInfo([infoByRouteId, routesAndTripsById]) {
+function injectStopsWithRouteInfo ([infoByRouteId, routesAndTripsById]) {
   return _.mapValues(infoByRouteId, tripStops => {
     if (!(tripStops && tripStops.length)) {
       return {}
@@ -128,18 +128,18 @@ function injectStopsWithRouteInfo([infoByRouteId, routesAndTripsById]) {
     const { routeId } = tripStops[0]
     const routeAndTrip = routesAndTripsById[routeId]
     const trip = _(routeAndTrip)
-      .pick(["tripId", "routeId", "date", "cancelled"])
+      .pick(['tripId', 'routeId', 'date', 'cancelled'])
       .set(
-        "route",
-        _.pick(routeAndTrip, ["transportCompanyId", "label", "from", "to"])
+        'route',
+        _.pick(routeAndTrip, ['transportCompanyId', 'label', 'from', 'to'])
       )
       .set(
-        "tripStops",
+        'tripStops',
         tripStops.map(ts =>
           _(ts)
-            .omit(["coordinates"])
-            .set("coordinates", { type: "Point", coordinates: ts.coordinates })
-            .set("_xy", toSVY(ts.coordinates))
+            .omit(['coordinates'])
+            .set('coordinates', { type: 'Point', coordinates: ts.coordinates })
+            .set('_xy', toSVY(ts.coordinates))
             .value()
         )
       )
@@ -158,15 +158,15 @@ function injectStopsWithRouteInfo([infoByRouteId, routesAndTripsById]) {
  * @param {String} dateString - an ISO string representation of the date
  * @return {Promise} a collection of route ids to trip stops and other metadata
  */
-function infoByRouteId(db, dynamoDb, dateString) {
+function infoByRouteId (db, dynamoDb, dateString) {
   return Promise.all([
     db.any(STOPS_QUERY, dateString),
     db.any(ROUTES_QUERY, dateString),
   ]).then(([stops, routes]) =>
     Promise.all([
       injectStopsWithRouteInfo([
-        _.groupBy(stops, "routeId"),
-        _.keyBy(routes, "routeId"),
+        _.groupBy(stops, 'routeId'),
+        _.keyBy(routes, 'routeId'),
       ]),
       collectPings(dynamoDb, routes),
     ])

@@ -1,12 +1,13 @@
-const jwt = require("jsonwebtoken")
+const jwt = require('jsonwebtoken')
 
-const VALIDATION_ERROR = { validationError: "Ping invalid: no driver id found" }
+// TODO: Refactor this to use proper Errors
+const VALIDATION_ERROR = { validationError: 'Ping invalid: no driver id found' }
 
 const whereTripIdIs = tripId => ({
   ExpressionAttributeValues: {
-    ":v1": tripId,
+    ':v1': tripId,
   },
-  KeyConditionExpression: "tripId = :v1",
+  KeyConditionExpression: 'tripId = :v1',
   TableName: process.env.ROSTER_TABLE,
   ScanIndexForward: false,
   Limit: 1,
@@ -25,7 +26,7 @@ const validateDriverWithRoster = (driverId, event, { vehicleId }, dynamoDb) =>
     dynamoDb.query(whereTripIdIs(tripId), (validationError, data) => {
       if (validationError) {
         console.error(validationError)
-        reject({ validationError })
+        reject({ validationError }) // eslint-disable-line prefer-promise-reject-errors
       } else {
         const [roster] = data.Items || []
         if (!roster) {
@@ -67,11 +68,11 @@ const validateDriverWithRoster = (driverId, event, { vehicleId }, dynamoDb) =>
  *   resolves to driverId if the event is considered valid (see above),
  *   or rejects with validationError otherwise
  */
-function validatePing(event, data, dynamoDb) {
+function validatePing (event, data, dynamoDb) {
   return new Promise((resolve, reject) => {
     const authorization =
       event.headers.authorization || event.headers.Authorization
-    const [, token] = (authorization || "").split(" ")
+    const [, token] = (authorization || '').split(' ')
 
     if (!token) {
       reject(VALIDATION_ERROR)
@@ -87,7 +88,7 @@ function validatePing(event, data, dynamoDb) {
         reject(VALIDATION_ERROR)
       }
     } catch (validationError) {
-      reject({ validationError })
+      reject({ validationError }) // eslint-disable-line prefer-promise-reject-errors
     }
   })
 }

@@ -1,14 +1,14 @@
-const {expect} = require('chai')
+const { expect } = require('chai')
 
 const jwt = require('jsonwebtoken')
 
-const {validatePing} = require('../src/utils/validate')
+const { validatePing } = require('../src/utils/validate')
 
 const fail = (e) => expect.fail(undefined, undefined, JSON.stringify(e))
 
 describe('Ping validations', () => {
   const sign = (driverId, token = process.env.AUTH0_SECRET) =>
-    `Bearer ${jwt.sign({driverId}, token)}`
+    `Bearer ${jwt.sign({ driverId }, token)}`
 
   before(() => {
     process.env.AUTH0_SECRET = 'toomanysecrets'
@@ -19,9 +19,9 @@ describe('Ping validations', () => {
   })
 
   it('should reject if no token', (done) => {
-    validatePing({headers: {}}, {}, undefined)
+    validatePing({ headers: {} }, {}, undefined)
       .then(fail)
-      .catch(({validationError}) => {
+      .catch(({ validationError }) => {
         expect(validationError).exist
         done()
       })
@@ -29,9 +29,9 @@ describe('Ping validations', () => {
 
   it('should reject if bad token', (done) => {
     const authorization = sign(1, 'bad-token')
-    validatePing({headers: {authorization}}, {}, undefined)
+    validatePing({ headers: { authorization } }, {}, undefined)
       .then(fail)
-      .catch(({validationError}) => {
+      .catch(({ validationError }) => {
         expect(validationError).exist
         done()
       })
@@ -39,9 +39,9 @@ describe('Ping validations', () => {
 
   it('should reject if token has no driverId', (done) => {
     const authorization = sign(undefined)
-    validatePing({headers: {authorization}}, {}, undefined)
+    validatePing({ headers: { authorization } }, {}, undefined)
       .then(fail)
-      .catch(({validationError}) => {
+      .catch(({ validationError }) => {
         expect(validationError).exist
         done()
       })
@@ -60,7 +60,7 @@ describe('Ping validations', () => {
     }
     validatePing(event, {}, dynamoDb)
       .then(fail)
-      .catch(({validationError}) => {
+      .catch(({ validationError }) => {
         expect(validationError).exist
         done()
       })
@@ -79,7 +79,7 @@ describe('Ping validations', () => {
     }
     validatePing(event, {}, dynamoDb)
       .then(fail)
-      .catch(({validationError}) => {
+      .catch(({ validationError }) => {
         expect(validationError).exist
         done()
       })
@@ -99,7 +99,7 @@ describe('Ping validations', () => {
     }
     validatePing(event, {}, dynamoDb)
       .then(fail)
-      .catch(({validationError}) => {
+      .catch(({ validationError }) => {
         expect(validationError).exist
         done()
       })
@@ -117,7 +117,7 @@ describe('Ping validations', () => {
       pathParameters: { tripId },
     }
     validatePing(event, {}, dynamoDb)
-      .then(({driverId}) => {
+      .then(({ driverId }) => {
         expect(driverId).equal(expected)
         done()
       })
@@ -137,7 +137,7 @@ describe('Ping validations', () => {
       pathParameters: { tripId },
     }
     validatePing(event, {}, dynamoDb)
-      .then(({driverId}) => {
+      .then(({ driverId }) => {
         expect(driverId).equal(expected)
         done()
       })
@@ -158,7 +158,7 @@ describe('Ping validations', () => {
       pathParameters: { tripId },
     }
     validatePing(event, { vehicleId }, dynamoDb)
-      .then(({driverId}) => {
+      .then(({ driverId }) => {
         expect(driverId).equal(expected)
         done()
       })
