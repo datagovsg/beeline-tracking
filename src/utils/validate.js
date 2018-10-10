@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 
 // TODO: Refactor this to use proper Errors
-const VALIDATION_ERROR = { validationError: 'Ping invalid: no driver id found' }
+const VALIDATION_ERROR = new Error('Ping invalid: no driver id found')
 
 const whereTripIdIs = tripId => ({
   ExpressionAttributeValues: {
@@ -13,20 +13,18 @@ const whereTripIdIs = tripId => ({
   Limit: 1,
 })
 
-const invalidDriverOrVehicle = (tripId, driverId, vehicleId) => ({
-  validationError: `Ping invalid: Trip ${tripId} should not have driver ${
-    driverId
-  } or vehicle ${vehicleId}`,
-})
+const invalidDriverOrVehicle = (tripId, driverId, vehicleId) => new Error(
+  `Ping invalid: Trip ${tripId} should not have driver ${driverId} or vehicle ${vehicleId}`,
+)
 
 const validateDriverWithRoster = (driverId, event, { vehicleId }, dynamoDb) =>
   new Promise((resolve, reject) => {
     const tripId = Number(event.pathParameters.tripId)
 
-    dynamoDb.query(whereTripIdIs(tripId), (validationError, data) => {
-      if (validationError) {
-        console.error(validationError)
-        reject({ validationError }) // eslint-disable-line prefer-promise-reject-errors
+    dynamoDb.query(whereTripIdIs(tripId), (error, data) => {
+      if (error) {
+        console.error(error)
+        reject(error)
       } else {
         const [roster] = data.Items || []
         if (!roster) {
@@ -66,7 +64,7 @@ const validateDriverWithRoster = (driverId, event, { vehicleId }, dynamoDb) =>
  *   the DynamoDB client
  * @return {Promise}
  *   resolves to driverId if the event is considered valid (see above),
- *   or rejects with validationError otherwise
+ *   or rejects with Error otherwise
  */
 function validatePing (event, data, dynamoDb) {
   return new Promise((resolve, reject) => {
@@ -87,8 +85,8 @@ function validatePing (event, data, dynamoDb) {
       } else {
         reject(VALIDATION_ERROR)
       }
-    } catch (validationError) {
-      reject({ validationError }) // eslint-disable-line prefer-promise-reject-errors
+    } catch (error) {
+      reject(error)
     }
   })
 }

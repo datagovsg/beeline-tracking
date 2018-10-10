@@ -21,8 +21,8 @@ describe('Ping validations', () => {
   it('should reject if no token', (done) => {
     validatePing({ headers: {} }, {}, undefined)
       .then(fail)
-      .catch(({ validationError }) => {
-        expect(validationError).exist
+      .catch((error) => {
+        expect(error).exist
         done()
       })
   })
@@ -31,8 +31,8 @@ describe('Ping validations', () => {
     const authorization = sign(1, 'bad-token')
     validatePing({ headers: { authorization } }, {}, undefined)
       .then(fail)
-      .catch(({ validationError }) => {
-        expect(validationError).exist
+      .catch((error) => {
+        expect(error).exist
         done()
       })
   })
@@ -41,8 +41,8 @@ describe('Ping validations', () => {
     const authorization = sign(undefined)
     validatePing({ headers: { authorization } }, {}, undefined)
       .then(fail)
-      .catch(({ validationError }) => {
-        expect(validationError).exist
+      .catch((error) => {
+        expect(error).exist
         done()
       })
   })
@@ -60,8 +60,8 @@ describe('Ping validations', () => {
     }
     validatePing(event, {}, dynamoDb)
       .then(fail)
-      .catch(({ validationError }) => {
-        expect(validationError).exist
+      .catch((error) => {
+        expect(error).exist
         done()
       })
   })
@@ -79,8 +79,8 @@ describe('Ping validations', () => {
     }
     validatePing(event, {}, dynamoDb)
       .then(fail)
-      .catch(({ validationError }) => {
-        expect(validationError).exist
+      .catch((error) => {
+        expect(error).exist
         done()
       })
   })
@@ -99,8 +99,8 @@ describe('Ping validations', () => {
     }
     validatePing(event, {}, dynamoDb)
       .then(fail)
-      .catch(({ validationError }) => {
-        expect(validationError).exist
+      .catch((error) => {
+        expect(error).exist
         done()
       })
   })

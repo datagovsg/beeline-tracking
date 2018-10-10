@@ -78,11 +78,12 @@ describe('handler for POSTing pings', () => {
         expect(error).deep.equal(errorOnInsert)
         done()
       })
+      .catch(done)
   })
 
   it('should callback with error on validation fail', (done) => {
-    const validationError = { validationError: 'Unauthorized' }
-    validate.validatePing.returns(Promise.reject(validationError))
+    const expectedError = new Error('Unauthorized')
+    validate.validatePing.returns(Promise.reject(expectedError))
     const callback = sinon.spy()
     const handler = makePOST(mockDynamoClient())
     handler(event, undefined, callback)
@@ -92,8 +93,11 @@ describe('handler for POSTing pings', () => {
         const [, response] = callback.firstCall.args
         expect(response.statusCode).equal(400)
         const { error } = JSON.parse(response.body)
-        expect(error).equal(validationError.validationError)
+        expect(error.name).equal(expectedError.name)
+        expect(error.message).equal(expectedError.message)
+        expect(error.stack).equal(expectedError.stack)
         done()
       })
+      .catch(done)
   })
 })

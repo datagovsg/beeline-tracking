@@ -34,11 +34,15 @@ const makePOST = dynamoDb => (event, context, callback) => {
         })
         .promise()
     })
-    .catch(error => {
-      console.error(error)
-      callbackWith((error.validationError || {}).statusCode || 400, {
-        error: error.validationError || error,
-      })
+    .catch(e => {
+      console.error(e)
+      const error = {
+        statusCode: e.statusCode,
+        name: e.name,
+        message: e.message,
+        stack: e.stack,
+      }
+      callbackWith(error.statusCode || 400, { error })
     })
 }
 
