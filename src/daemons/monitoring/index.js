@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk')
 const moment = require('moment-timezone')
 
-const database = require('../utils/database')
+const database = require('../../utils/database')
 
 const db = database.getConnection(process.env.DATABASE_URL)
 const dynamoDb = new AWS.DynamoDB.DocumentClient()
