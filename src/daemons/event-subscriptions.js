@@ -23,15 +23,15 @@ const removeCompaniesWithNoSubscriptions = subs => {
   const toCompanyId = ({ transportCompanyId }) => Number(transportCompanyId)
 
   const subbedCompanyIds = subs.map(toCompanyId)
-  const hasNoSubs = id => !subbedCompanyIds.includes(id)
+  const hasNoSubs = ({ transportCompanyId }) => !subbedCompanyIds.includes(transportCompanyId)
 
   const TableName = process.env.EVENT_SUBS_TABLE
   const params = { TableName, AttributesToGet: ['transportCompanyId'] }
   return dynamoDb.scan(params)
     .promise()
-    .then(({ Items }) => Items.map(toCompanyId).filter(hasNoSubs))
-    .then(ids => Promise.all(ids.map(
-      HashKey => dynamoDb.delete({ TableName, Key: { HashKey } }).promise()
+    .then(({ Items }) => Items.filter(hasNoSubs))
+    .then(keys => Promise.all(keys.map(
+      Key => dynamoDb.delete({ TableName, Key }).promise()
     )))
 }
 

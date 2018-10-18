@@ -57,13 +57,13 @@ describe('Syncing monitoring event subscriptions', () => {
         expect(
           dynamoDb.delete.calledWith({
             TableName: process.env.EVENT_SUBS_TABLE,
-            Key: { HashKey: 2 },
+            Key: { transportCompanyId: 2 },
           })
         ).to.be.true
         expect(
           dynamoDb.delete.calledWith({
             TableName: process.env.EVENT_SUBS_TABLE,
-            Key: { HashKey: 4 },
+            Key: { transportCompanyId: 4 },
           })
         ).to.be.true
         done(err)
