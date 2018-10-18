@@ -25,6 +25,7 @@ provider:
   iamRoleStatements:
     - Effect: Allow
       Action:
+        - dynamodb:Scan
         - dynamodb:Query
         - dynamodb:BatchWriteItem
         - dynamodb:GetItem
